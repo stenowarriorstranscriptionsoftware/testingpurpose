@@ -150,6 +150,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <th>Accuracy</th>
                 <th>Speed (WPM)</th>
                 <th>Words</th>
+                <th>Half Mistakes</th>
+                <th>Full Mistakes</th>
                 <th>Date</th>
               </tr>
             </thead>
@@ -173,6 +175,8 @@ document.addEventListener('DOMContentLoaded', function() {
               <td class="accuracy-cell ${accuracyClass}">${attempt.stats.accuracy.toFixed(1)}%</td>
               <td>${attempt.stats.wpm}</td>
               <td>${attempt.stats.totalUser}</td>
+              <td>${attempt.stats.halfMistakes}</td>
+              <td>${attempt.stats.fullMistakes}</td>
               <td>${date.toLocaleDateString()}</td>
             </tr>
           `;
