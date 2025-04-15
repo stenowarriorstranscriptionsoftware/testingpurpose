@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Auth state listener - UPDATED TO FIX LOGOUT ISSUE
+  // Auth state listener
   auth.onAuthStateChanged(user => {
     if (user) {
       // User is signed in
@@ -79,21 +79,12 @@ document.addEventListener('DOMContentLoaded', function() {
       globalTestsSection.classList.remove('hidden');
       loadGlobalTests();
     } else {
-      // User is signed out - ENSURE ALL ELEMENTS ARE PROPERLY HIDDEN/SHOWN
+      // User is signed out
       loginBtn.classList.remove('hidden');
       userInfo.classList.add('hidden');
       loginPrompt.classList.remove('hidden');
       customTestSection.classList.add('hidden');
       globalTestsSection.classList.add('hidden');
-      userPhoto.src = '';
-      userName.textContent = '';
-      
-      // Reset any test-related UI
-      originalTextGroup.classList.remove('hidden');
-      timerOptions.classList.add('hidden');
-      timerDisplay.classList.add('hidden');
-      resultsSection.classList.add('hidden');
-      fullTextSection.classList.add('hidden');
     }
   });
 
@@ -107,23 +98,9 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   });
 
-  // Logout handler - UPDATED TO PROPERLY RESET UI
+  // Logout handler
   logoutBtn.addEventListener('click', () => {
-    auth.signOut()
-      .then(() => {
-        // Immediately update UI without waiting for auth state change
-        loginBtn.classList.remove('hidden');
-        userInfo.classList.add('hidden');
-        loginPrompt.classList.remove('hidden');
-        customTestSection.classList.add('hidden');
-        globalTestsSection.classList.add('hidden');
-        userPhoto.src = '';
-        userName.textContent = '';
-      })
-      .catch(error => {
-        console.error('Logout error:', error);
-        alert('Logout failed. Please try again.');
-      });
+    auth.signOut();
   });
 
   // Load global tests from Firebase
