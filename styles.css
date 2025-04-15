@@ -510,3 +510,77 @@ footer {
   border-radius: 50%;
   margin-right: 8px;
 }
+/* Leaderboard Styles */
+.leaderboard-section {
+  padding: 2rem;
+  margin: 2rem 0;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.leaderboard-controls {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.leaderboard-controls select {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #e2e8f0;
+}
+
+.leaderboard-list {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-list th, 
+.leaderboard-list td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.leaderboard-list th {
+  background-color: var(--primary-light);
+  color: white;
+  font-weight: 500;
+}
+
+.leaderboard-list tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.leaderboard-list tr:hover {
+  background-color: #e9ecef;
+}
+
+.leaderboard-user {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.leaderboard-user img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.accuracy-cell {
+  font-weight: 600;
+}
+
+.accuracy-high {
+  color: #2ecc71;
+}
+
+.accuracy-medium {
+  color: #f39c12;
+}
+
+.accuracy-low {
+  color: #e74c3c;
+}

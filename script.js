@@ -45,6 +45,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const customTestSection = document.getElementById('customTestSection');
   const globalTestsSection = document.getElementById('globalTestsSection');
   const globalTestsList = document.getElementById('globalTestsList');
+  const leaderboardSection = document.getElementById('leaderboardSection');
+  const leaderboardList = document.getElementById('leaderboardList');
+  const leaderboardFilter = document.getElementById('leaderboardFilter');
 
   // Custom Test Logic
   const saveBtn = document.getElementById('saveTestBtn');
@@ -77,7 +80,9 @@ document.addEventListener('DOMContentLoaded', function() {
       loginPrompt.classList.add('hidden');
       customTestSection.classList.remove('hidden');
       globalTestsSection.classList.remove('hidden');
+      leaderboardSection.classList.remove('hidden');
       loadGlobalTests();
+      loadLeaderboard();
     } else {
       // User is signed out
       loginBtn.classList.remove('hidden');
@@ -85,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
       loginPrompt.classList.remove('hidden');
       customTestSection.classList.add('hidden');
       globalTestsSection.classList.add('hidden');
+      leaderboardSection.classList.add('hidden');
     }
   });
 
@@ -102,6 +108,84 @@ document.addEventListener('DOMContentLoaded', function() {
   logoutBtn.addEventListener('click', () => {
     auth.signOut();
   });
+
+  // Leaderboard filter change handler
+  leaderboardFilter.addEventListener('change', loadLeaderboard);
+
+  // Load leaderboard data
+  function loadLeaderboard() {
+    const filter = leaderboardFilter.value;
+    let query = database.ref('attempts').orderByChild('timestamp');
+    
+    if (filter === 'week') {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      query = query.startAt(oneWeekAgo.getTime());
+    } else if (filter === 'month') {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      query = query.startAt(oneMonthAgo.getTime());
+    }
+
+    query.once('value')
+      .then(snapshot => {
+        const attempts = snapshot.val();
+        if (!attempts) {
+          leaderboardList.innerHTML = '<p>No attempts recorded yet. Be the first to complete a test!</p>';
+          return;
+        }
+
+        // Convert to array and sort by accuracy (descending)
+        const attemptsArray = Object.entries(attempts).map(([id, attempt]) => attempt);
+        attemptsArray.sort((a, b) => b.stats.accuracy - a.stats.accuracy);
+
+        // Build leaderboard table
+        let tableHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Test</th>
+                <th>Accuracy</th>
+                <th>Speed (WPM)</th>
+                <th>Words</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        attemptsArray.forEach((attempt, index) => {
+          const date = new Date(attempt.timestamp);
+          const accuracyClass = 
+            attempt.stats.accuracy >= 90 ? 'accuracy-high' :
+            attempt.stats.accuracy >= 70 ? 'accuracy-medium' : 'accuracy-low';
+
+          tableHTML += `
+            <tr>
+              <td>${index + 1}</td>
+              <td class="leaderboard-user">
+                <img src="${attempt.userPhoto}" alt="${attempt.userName}">
+                <span>${attempt.userName}</span>
+              </td>
+              <td>${attempt.testTitle || 'Custom Test'}</td>
+              <td class="accuracy-cell ${accuracyClass}">${attempt.stats.accuracy.toFixed(1)}%</td>
+              <td>${attempt.stats.wpm}</td>
+              <td>${attempt.stats.totalUser}</td>
+              <td>${date.toLocaleDateString()}</td>
+            </tr>
+          `;
+        });
+
+        tableHTML += `</tbody></table>`;
+        leaderboardList.innerHTML = tableHTML;
+      })
+      .catch(error => {
+        console.error('Error loading leaderboard:', error);
+        leaderboardList.innerHTML = '<p>Error loading leaderboard. Please try again later.</p>';
+      });
+  }
 
   // Load global tests from Firebase
   function loadGlobalTests() {
@@ -339,6 +423,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Lock the test if timer ended or compare was clicked manually
     if (testActive) {
       lockTest();
+    }
+
+    // Save attempt to leaderboard if user is logged in
+    const user = auth.currentUser;
+    if (user) {
+      const testTitle = document.querySelector('.test-card h4')?.textContent || 'Custom Test';
+      
+      const attemptData = {
+        userName: user.displayName,
+        userPhoto: user.photoURL,
+        testTitle: testTitle,
+        stats: comparison.stats,
+        timestamp: Date.now()
+      };
+
+      database.ref('attempts').push(attemptData)
+        .then(() => loadLeaderboard())
+        .catch(error => console.error('Error saving attempt:', error));
     }
   }
   
