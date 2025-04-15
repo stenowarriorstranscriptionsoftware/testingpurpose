@@ -67,41 +67,45 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Auth state listener
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      // User is signed in
-      loginBtn.classList.add('hidden');
-      userInfo.classList.remove('hidden');
-      userPhoto.src = user.photoURL;
-      userName.textContent = user.displayName;
-      loginPrompt.classList.add('hidden');
-      customTestSection.classList.remove('hidden');
-      globalTestsSection.classList.remove('hidden');
-      loadGlobalTests();
-    } else {
-      // User is signed out
+auth.onAuthStateChanged(user => {
+  if (user) {
+    // User is signed in
+    loginBtn.classList.add('hidden');
+    userInfo.classList.remove('hidden');
+    userPhoto.src = user.photoURL;
+    userName.textContent = user.displayName;
+    loginPrompt.classList.add('hidden');
+    customTestSection.classList.remove('hidden');
+    globalTestsSection.classList.remove('hidden');
+    loadGlobalTests();
+  } else {
+    // User is signed out
+    loginBtn.classList.remove('hidden');
+    userInfo.classList.add('hidden');
+    loginPrompt.classList.remove('hidden');
+    customTestSection.classList.add('hidden');
+    globalTestsSection.classList.add('hidden');
+    // Reset any user-specific data
+    userPhoto.src = '';
+    userName.textContent = '';
+  }
+});
+
+// Logout handler
+logoutBtn.addEventListener('click', () => {
+  auth.signOut()
+    .then(() => {
+      // Force refresh the UI state
       loginBtn.classList.remove('hidden');
       userInfo.classList.add('hidden');
       loginPrompt.classList.remove('hidden');
       customTestSection.classList.add('hidden');
       globalTestsSection.classList.add('hidden');
-    }
-  });
-
-  // Login handler
-  loginBtn.addEventListener('click', () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-      .catch(error => {
-        console.error('Login error:', error);
-        alert('Login failed. Please try again.');
-      });
-  });
-
-  // Logout handler
-  logoutBtn.addEventListener('click', () => {
-    auth.signOut();
-  });
+    })
+    .catch(error => {
+      console.error('Logout error:', error);
+    });
+});
 
   // Load global tests from Firebase
   function loadGlobalTests() {
