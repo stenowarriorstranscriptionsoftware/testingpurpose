@@ -411,27 +411,102 @@ footer {
   border-color: var(--primary-light);
   box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
 }
-/* Google Auth Buttons */
-#authSection {
+/* Add these new styles to your existing styles.css */
+
+/* Auth Styles */
+.auth-btn {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 1rem;
+}
+
+.auth-btn:hover {
+  background-color: var(--secondary);
+  transform: translateY(-2px);
+}
+
+.user-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+#userInfo {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+/* Login Prompt */
+.login-prompt {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 10px;
+  margin: 2rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* Global Tests Section */
+.global-tests-section {
+  padding: 2rem;
+  margin: 2rem 0;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.tests-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.user-info {
+.test-card {
+  background: var(--light);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.test-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.test-card h4 {
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.test-card p {
+  color: var(--gray);
   font-size: 0.9rem;
-  color: var(--dark);
-  font-weight: 500;
 }
 
-/* Danger delete button */
-.danger-btn {
-  background-color: var(--danger);
-  color: white;
+.test-author {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
 }
 
-.danger-btn:hover {
-  background-color: #d61c61;
+.test-author img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 8px;
 }
