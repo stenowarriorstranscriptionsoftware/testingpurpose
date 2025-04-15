@@ -52,6 +52,20 @@ document.addEventListener('DOMContentLoaded', function() {
   const customTitle = document.getElementById('customTitle');
   const customOriginal = document.getElementById('customOriginal');
 
+  // Timer variables
+  let timerInterval;
+  let endTime;
+  let testActive = false;
+  let timerButtons = document.querySelectorAll('.timer-option');
+  
+  // Initialize typing timer
+  let startTime = null;
+  userTextEl.addEventListener('input', function() {
+    if (!startTime) {
+      startTime = new Date();
+    }
+  });
+
   // Auth state listener
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -114,6 +128,12 @@ document.addEventListener('DOMContentLoaded', function() {
           `;
           testCard.addEventListener('click', () => {
             originalTextEl.value = test.text;
+            originalTextGroup.classList.add('hidden');
+            timerOptions.classList.remove('hidden');
+            timerButtons.forEach(btn => {
+              btn.disabled = false;
+              btn.style.opacity = '1';
+            });
           });
           globalTestsList.appendChild(testCard);
         });
@@ -188,27 +208,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-    // Timer variables
-  let timerInterval;
-  let endTime;
-  let testActive = false;
-  let timerButtons = document.querySelectorAll('.timer-option');
-  
-  // Initialize typing timer
-  let startTime = null;
-  userTextEl.addEventListener('input', function() {
-    if (!startTime) {
-      startTime = new Date();
-    }
-  });
-  
   // Original text paste handler
   originalTextEl.addEventListener('paste', function() {
     setTimeout(() => {
       if (originalTextEl.value.trim() !== '' && !testActive) {
         originalTextGroup.classList.add('hidden');
         timerOptions.classList.remove('hidden');
-        // Re-enable timer buttons if they were disabled
         timerButtons.forEach(btn => {
           btn.disabled = false;
           btn.style.opacity = '1';
@@ -347,39 +352,35 @@ document.addEventListener('DOMContentLoaded', function() {
     resultsSection.classList.remove('hidden');
   }
   
-function downloadAsPdf() {
-  const resultsElement = document.getElementById('results');
+  function downloadAsPdf() {
+    const resultsElement = document.getElementById('results');
 
-  html2canvas(resultsElement, {
-    scale: 1.5, // moderate resolution
-    useCORS: true,
-    allowTaint: true
-  }).then(canvas => {
-    const imgData = canvas.toDataURL('image/jpeg', 0.7); // medium-high quality JPEG
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgWidth = 210;
-    const pageHeight = 295;
-    const imgHeight = canvas.height * imgWidth / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
+    html2canvas(resultsElement, {
+      scale: 1.5,
+      useCORS: true,
+      allowTaint: true
+    }).then(canvas => {
+      const imgData = canvas.toDataURL('image/jpeg', 0.7);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
 
-    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
       pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
-    }
 
-    pdf.save('transcription-comparison.pdf');
-  });
-}
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
 
-
-
-
+      pdf.save('transcription-comparison.pdf');
+    });
+  }
   
   function processText(text) {
     return text
