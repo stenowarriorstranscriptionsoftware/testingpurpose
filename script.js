@@ -112,84 +112,175 @@ document.addEventListener('DOMContentLoaded', function() {
   // Leaderboard filter change handler
   leaderboardFilter.addEventListener('change', loadLeaderboard);
 
-  // Load leaderboard data
   function loadLeaderboard() {
-    const filter = leaderboardFilter.value;
-    let query = database.ref('attempts').orderByChild('timestamp');
-    
-    if (filter === 'week') {
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      query = query.startAt(oneWeekAgo.getTime());
-    } else if (filter === 'month') {
-      const oneMonthAgo = new Date();
-      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-      query = query.startAt(oneMonthAgo.getTime());
-    }
+  const filter = leaderboardFilter.value;
+  let query = database.ref('attempts').orderByChild('timestamp');
 
-    query.once('value')
-      .then(snapshot => {
-        const attempts = snapshot.val();
-        if (!attempts) {
-          leaderboardList.innerHTML = '<p>No attempts recorded yet. Be the first to complete a test!</p>';
-          return;
-        }
+  query.once('value')
+    .then(snapshot => {
+      const attempts = snapshot.val();
+      if (!attempts) {
+        leaderboardList.innerHTML = '<p>No attempts recorded yet. Be the first to complete a test!</p>';
+        return;
+      }
 
-        // Convert to array and sort by accuracy (descending)
-        const attemptsArray = Object.entries(attempts).map(([id, attempt]) => attempt);
-        attemptsArray.sort((a, b) => b.stats.accuracy - a.stats.accuracy);
+      // Filter and sort
+      let attemptsArray = Object.entries(attempts).map(([id, attempt]) => attempt);
+      const allTitles = new Set();
 
-        // Build leaderboard table
-        let tableHTML = `
-          <table>
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>User</th>
-                <th>Test</th>
-                <th>Accuracy</th>
-                <th>Speed (WPM)</th>
-                <th>Words</th>
-                <th>Half Mistakes</th>
-                <th>Full Mistakes</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-
-        attemptsArray.forEach((attempt, index) => {
-          const date = new Date(attempt.timestamp);
-          const accuracyClass = 
-            attempt.stats.accuracy >= 90 ? 'accuracy-high' :
-            attempt.stats.accuracy >= 70 ? 'accuracy-medium' : 'accuracy-low';
-
-          tableHTML += `
-            <tr>
-              <td>${index + 1}</td>
-              <td class="leaderboard-user">
-                <img src="${attempt.userPhoto}" alt="${attempt.userName}">
-                <span>${attempt.userName}</span>
-              </td>
-              <td>${attempt.testTitle || 'Custom Test'}</td>
-              <td class="accuracy-cell ${accuracyClass}">${attempt.stats.accuracy.toFixed(1)}%</td>
-              <td>${attempt.stats.wpm}</td>
-              <td>${attempt.stats.totalUser}</td>
-              <td>${attempt.stats.halfMistakes}</td>
-              <td>${attempt.stats.fullMistakes}</td>
-              <td>${date.toLocaleDateString()}</td>
-            </tr>
-          `;
-        });
-
-        tableHTML += `</tbody></table>`;
-        leaderboardList.innerHTML = tableHTML;
-      })
-      .catch(error => {
-        console.error('Error loading leaderboard:', error);
-        leaderboardList.innerHTML = '<p>Error loading leaderboard. Please try again later.</p>';
+      attemptsArray.forEach(a => {
+        allTitles.add(a.testTitle || 'Custom Test');
       });
-  }
+
+      if (filter !== 'all') {
+        attemptsArray = attemptsArray.filter(a => (a.testTitle || 'Custom Test') === filter);
+      }
+
+      attemptsArray.sort((a, b) => b.stats.accuracy - a.stats.accuracy);
+
+      // Build leaderboard HTML
+      let tableHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>User</th>
+              <th>Test</th>
+              <th>Accuracy</th>
+              <th>Speed (WPM)</th>
+              <th>Words</th>
+              <th>Half Mistakes</th>
+              <th>Full Mistakes</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      attemptsArray.forEach((attempt, index) => {
+        const date = new Date(attempt.timestamp);
+        const accuracyClass =
+          attempt.stats.accuracy >= 90 ? 'accuracy-high' :
+          attempt.stats.accuracy >= 70 ? 'accuracy-medium' : 'accuracy-low';
+
+        tableHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td class="leaderboard-user">
+              <img src="${attempt.userPhoto}" alt="${attempt.userName}">
+              <span>${attempt.userName}</span>
+            </td>
+            <td>${attempt.testTitle || 'Custom Test'}</td>
+            <td class="accuracy-cell ${accuracyClass}">${attempt.stats.accuracy.toFixed(1)}%</td>
+            <td>${attempt.stats.wpm}</td>
+            <td>${attempt.stats.totalUser}</td>
+            <td>${attempt.stats.halfMistakes}</td>
+            <td>${attempt.stats.fullMistakes}</td>
+            <td>${date.toLocaleDateString()}</td>
+          </tr>
+        `;
+      });
+
+      tableHTML += `</tbody></table>`;
+      leaderboardList.innerHTML = tableHTML;
+
+      // Update dropdown with test names
+      leaderboardFilter.innerHTML = `<option value="all">All Tests</option>`;
+      allTitles.forEach(title => {
+        leaderboardFilter.innerHTML += `<option value="${title}">${title}</option>`;
+      });
+      leaderboardFilter.value = filter;
+    })
+    .catch(error => {
+      console.error('Error loading leaderboard:', error);
+      leaderboardList.innerHTML = '<p>Error loading leaderboard. Please try again later.</p>';
+    });
+function loadLeaderboard() {
+  const filter = leaderboardFilter.value;
+  let query = database.ref('attempts').orderByChild('timestamp');
+
+  query.once('value')
+    .then(snapshot => {
+      const attempts = snapshot.val();
+      if (!attempts) {
+        leaderboardList.innerHTML = '<p>No attempts recorded yet. Be the first to complete a test!</p>';
+        return;
+      }
+
+      // Filter and sort
+      let attemptsArray = Object.entries(attempts).map(([id, attempt]) => attempt);
+      const allTitles = new Set();
+
+      attemptsArray.forEach(a => {
+        allTitles.add(a.testTitle || 'Custom Test');
+      });
+
+      if (filter !== 'all') {
+        attemptsArray = attemptsArray.filter(a => (a.testTitle || 'Custom Test') === filter);
+      }
+
+      attemptsArray.sort((a, b) => b.stats.accuracy - a.stats.accuracy);
+
+      // Build leaderboard HTML
+      let tableHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>User</th>
+              <th>Test</th>
+              <th>Accuracy</th>
+              <th>Speed (WPM)</th>
+              <th>Words</th>
+              <th>Half Mistakes</th>
+              <th>Full Mistakes</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      attemptsArray.forEach((attempt, index) => {
+        const date = new Date(attempt.timestamp);
+        const accuracyClass =
+          attempt.stats.accuracy >= 90 ? 'accuracy-high' :
+          attempt.stats.accuracy >= 70 ? 'accuracy-medium' : 'accuracy-low';
+
+        tableHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td class="leaderboard-user">
+              <img src="${attempt.userPhoto}" alt="${attempt.userName}">
+              <span>${attempt.userName}</span>
+            </td>
+            <td>${attempt.testTitle || 'Custom Test'}</td>
+            <td class="accuracy-cell ${accuracyClass}">${attempt.stats.accuracy.toFixed(1)}%</td>
+            <td>${attempt.stats.wpm}</td>
+            <td>${attempt.stats.totalUser}</td>
+            <td>${attempt.stats.halfMistakes}</td>
+            <td>${attempt.stats.fullMistakes}</td>
+            <td>${date.toLocaleDateString()}</td>
+          </tr>
+        `;
+      });
+
+      tableHTML += `</tbody></table>`;
+      leaderboardList.innerHTML = tableHTML;
+
+      // Update dropdown with test names
+      leaderboardFilter.innerHTML = `<option value="all">All Tests</option>`;
+      allTitles.forEach(title => {
+        leaderboardFilter.innerHTML += `<option value="${title}">${title}</option>`;
+      });
+      leaderboardFilter.value = filter;
+    })
+    .catch(error => {
+      console.error('Error loading leaderboard:', error);
+      leaderboardList.innerHTML = '<p>Error loading leaderboard. Please try again later.</p>';
+    });
+}
+
+
 
   // Load global tests from Firebase
   function loadGlobalTests() {
