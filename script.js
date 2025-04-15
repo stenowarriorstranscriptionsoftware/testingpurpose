@@ -328,11 +328,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // Run cleanup weekly
   setInterval(cleanupOldData, 7 * 24 * 60 * 60 * 1000);
 
-  // [Rest of the original functions remain exactly the same...]
-  // ... (All other existing functions like compareTexts, displayStats, etc.)
-  
   // Original text paste handler
   originalTextEl.addEventListener('paste', function() {
+    // Clear any selected test card
+    document.querySelectorAll('.test-card').forEach(card => {
+      card.classList.remove('selected');
+    });
+    
     setTimeout(() => {
       if (originalTextEl.value.trim() !== '' && !testActive) {
         originalTextGroup.classList.add('hidden');
@@ -439,6 +441,13 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
+    // Get the test title (either from the selected test card or use "Custom Test")
+    let testTitle = "Custom Test";
+    const selectedTestCard = document.querySelector('.test-card.selected');
+    if (selectedTestCard) {
+        testTitle = selectedTestCard.querySelector('h4').textContent;
+    }
+    
     // Process texts
     const originalWords = processText(originalText);
     const userWords = processText(userText);
@@ -467,12 +476,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Save attempt to leaderboard if user is logged in
     const user = auth.currentUser;
     if (user) {
-      const testTitle = document.querySelector('.test-card h4')?.textContent || 'Custom Test';
-      
       const attemptData = {
         userName: user.displayName,
         userPhoto: user.photoURL,
-        testTitle: testTitle,
+        testTitle: testTitle,  // Use the determined test title
         stats: comparison.stats,
         timestamp: Date.now()
       };
@@ -840,7 +847,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (accuracy >= 70) {
       assessment += '<p>📝 <strong>Fair accuracy.</strong> Focus on reducing errors to improve your score.</p>';
     } else {
-      assessment += '<p>⚠️ <strong>Needs improvement.</strong> Work on accuracy before increasing speed.</p>';
+      assessment += '<p⚠️ <strong>Needs improvement.</strong> Work on accuracy before increasing speed.</p>';
     }
     
     if (wpm >= 50) {
@@ -910,6 +917,13 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
           `;
           testCard.addEventListener('click', () => {
+            // Remove selected class from all cards
+            document.querySelectorAll('.test-card').forEach(card => {
+              card.classList.remove('selected');
+            });
+            // Add selected class to clicked card
+            testCard.classList.add('selected');
+            
             originalTextEl.value = test.text;
             originalTextGroup.classList.add('hidden');
             timerOptions.classList.remove('hidden');

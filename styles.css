@@ -592,3 +592,7 @@ footer {
 .accuracy-low {
   color: #e74c3c;
 }
+.test-card.selected {
+  border: 2px solid var(--primary);
+  background-color: rgba(67, 97, 238, 0.1);
+}
