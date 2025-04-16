@@ -77,98 +77,47 @@
     <button onclick="downloadPDF()" class="download-btn">Show Result</button>
   </div>
 
- <!-- Leaderboard Modal -->
-<div id="leaderboard-modal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
-    
-    <div class="leaderboard-container">
-      <div class="leaderboard-header">
-        <h2>Steno Warriors Leaderboard</h2>
-        <p>Top performers across all tests</p>
-      </div>
-      
+  <!-- Leaderboard Modal -->
+  <div id="leaderboard-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Leaderboard</h2>
       <div class="leaderboard-filters">
-        <div class="filter-group">
-          <label for="leaderboard-test-select">Test</label>
-          <select id="leaderboard-test-select" class="filter-select">
-            <option value="all">All Tests</option>
-            <optgroup label="General Matter (1-50)">
-              <option value="1">Test 1</option>
-              <option value="2">Test 2</option>
-              <!-- Add more tests 1-50 as needed -->
-            </optgroup>
-            <optgroup label="KC Mix (51-100)">
-              <option value="51">Test 51</option>
-              <option value="52">Test 52</option>
-              <!-- Add more tests 51-100 as needed -->
-            </optgroup>
-          </select>
-        </div>
-        
-        <div class="filter-group">
-          <label for="leaderboard-speed-select">Speed</label>
-          <select id="leaderboard-speed-select" class="filter-select">
-            <option value="all">All Speeds</option>
-            <option value="80">80 WPM</option>
-            <option value="100">100 WPM</option>
-          </select>
-        </div>
-        
-        <div class="filter-group">
-          <label for="leaderboard-time-range">Time Range</label>
-          <select id="leaderboard-time-range" class="filter-select">
-            <option value="3months">Last 3 Months</option>
-            <option value="1month">Last Month</option>
-            <option value="1week">Last Week</option>
-            <option value="all">All Time</option>
-          </select>
-        </div>
-        
-        <button id="refresh-leaderboard" class="refresh-btn">
-          <span class="refresh-icon">↻</span> Refresh
-        </button>
+        <select id="leaderboard-test-select">
+          <option value="all">All Tests</option>
+        </select>
+        <select id="leaderboard-speed-select">
+          <option value="all">All Speeds</option>
+          <option value="80">80 WPM</option>
+          <option value="100">100 WPM</option>
+        </select>
+        <button id="refresh-leaderboard" class="download-btn">Refresh</button>
       </div>
-      
-      <div class="leaderboard-stats">
-        <div id="stats-total">Total Results: 0</div>
-        <div id="stats-shown">Showing: 0-0</div>
-      </div>
-      
-      <div class="leaderboard-content">
+      <div id="leaderboard-content">
         <table id="leaderboard-table">
           <thead>
             <tr>
-              <th onclick="sortLeaderboard('rank')">Rank</th>
-              <th onclick="sortLeaderboard('name')">Name</th>
-              <th onclick="sortLeaderboard('test')">Test</th>
-              <th onclick="sortLeaderboard('speed')">Speed</th>
-              <th onclick="sortLeaderboard('accuracy')">Accuracy</th>
-              <th onclick="sortLeaderboard('words')">Words</th>
-              <th onclick="sortLeaderboard('time')">Time</th>
-              <th onclick="sortLeaderboard('date')">Date</th>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Test</th>
+              <th>Speed</th>
+              <th>Accuracy</th>
+              <th>Words</th>
+              <th>Typed</th>
+              <th>Time</th>
+              <th>Date</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td colspan="8" style="text-align: center; padding: 30px;">
-                Loading leaderboard data...
-              </td>
-            </tr>
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
-      
       <div class="leaderboard-pagination">
-        <button id="first-page" class="page-btn" disabled>« First</button>
-        <button id="prev-page" class="page-btn" disabled>‹ Prev</button>
-        <span id="page-info" class="page-info">Page 1 of 1</span>
-        <button id="next-page" class="page-btn" disabled>Next ›</button>
-        <button id="last-page" class="page-btn" disabled>Last »</button>
+        <button id="prev-page" disabled>Previous</button>
+        <span id="page-info">Page 1 of 1</span>
+        <button id="next-page" disabled>Next</button>
       </div>
     </div>
   </div>
-</div>
 
   <div class="footer">
     <div>
@@ -183,15 +132,15 @@
   <script>
     // Firebase Configuration
     const firebaseConfig = {
-  apiKey: "AIzaSyB9vruL_f9KZPC-Ihdj3UuqcXSgy1Lzqm0",
-  authDomain: "score-collection.firebaseapp.com",
-  databaseURL: "https://score-collection-default-rtdb.firebaseio.com",
-  projectId: "score-collection",
-  storageBucket: "score-collection.firebasestorage.app",
-  messagingSenderId: "720795371551",
-  appId: "1:720795371551:web:78ff7863cbeaca0161ed2a",
-  measurementId: "G-L6MHY1KCZ0"
-};
+      apiKey: "AIzaSyBjY-pE5jxQJgKqDZrcE7Im66_5r-X_mRA",
+      authDomain: "setup-login-page.firebaseapp.com",
+      databaseURL: "https://setup-login-page-default-rtdb.firebaseio.com",
+      projectId: "setup-login-page",
+      storageBucket: "setup-login-page.appspot.com",
+      messagingSenderId: "341251531099",
+      appId: "1:341251531099:web:f4263621455541ffdc3a7e",
+      measurementId: "G-ZXFC7NR9HV"
+    };
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
