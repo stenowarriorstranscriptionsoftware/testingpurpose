@@ -18,26 +18,17 @@
 </head>
 
 <body>
-  <!-- Replace the existing login-container div with this -->
-<div id="login-container" class="login-container" style="display: none;">
-  <div class="login-content">
-    <h2>Welcome to Steno Warriors</h2>
-    <p>Please sign in to access transcription tests</p>
-    <div class="mobile-login-options">
-      <button id="googleSignInMobile" class="google-signin-btn">
+  <!-- Login Container -->
+  <div id="login-container" class="login-container">
+    <div class="login-content">
+      <h2>Welcome to Steno Warriors</h2>
+      <p>Please sign in with Google to access the transcription tests</p>
+      <button id="googleSignIn" class="google-signin-btn">
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
         Sign in with Google
       </button>
-      <div class="email-login-form" style="margin-top: 20px;">
-        <input type="email" id="login-email" placeholder="Email" class="login-input">
-        <input type="password" id="login-password" placeholder="Password" class="login-input">
-        <button id="emailSignIn" class="sign-in-btn">Sign In</button>
-        <p style="margin-top: 10px; text-align: center;">or</p>
-        <button id="createAccount" class="create-account-btn">Create Account</button>
-      </div>
     </div>
   </div>
-</div>
 
   <div class="header">
     <h1>Steno Warriors Transcription Software</h1>
@@ -154,74 +145,39 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
+auth.getRedirectResult()
+  .then((result) => {
+    if (result.user) {
+      console.log("Redirect login success:", result.user);
+      // Show app content
+    }
+  })
+  .catch((error) => {
+    console.error("Redirect login error:", error);
+  });
 
-   // Replace the existing signInWithGoogle function with this
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  
-  // For mobile, use redirect instead of popup
-  if (window.innerWidth <= 768) {
-    auth.signInWithRedirect(provider)
-      .then(() => {
-        return auth.getRedirectResult();
-      })
-      .then((result) => {
-        if (result.user) {
-          console.log("User signed in:", result.user);
-        }
-      })
-      .catch((error) => {
-        console.error("Error signing in:", error);
-        alert("Error signing in: " + error.message);
-      });
-  } else {
-    // Desktop still uses popup
-    auth.signInWithPopup(provider)
-      .then((result) => {
-        console.log("User signed in:", result.user);
-      })
-      .catch((error) => {
-        console.error("Error signing in:", error);
-        alert("Error signing in: " + error.message);
-      });
-  }
-}
-
-// Add these new functions for email/password auth
-function signInWithEmail() {
-  const email = document.getElementById('login-email').value;
-  const password = document.getElementById('login-password').value;
-  
-  auth.signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      console.log("User signed in:", userCredential.user);
-    })
-    .catch((error) => {
-      console.error("Error signing in:", error);
-      alert("Error signing in: " + error.message);
-    });
-}
-
-function createAccount() {
-  const email = document.getElementById('login-email').value;
-  const password = document.getElementById('login-password').value;
-  
-  auth.createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      console.log("User created:", userCredential.user);
-    })
-    .catch((error) => {
-      console.error("Error creating account:", error);
-      alert("Error creating account: " + error.message);
-    });
+  auth.signInWithRedirect(provider);
 }
 
 
-    // Update the event listeners
-document.getElementById('googleSignIn').addEventListener('click', signInWithGoogle);
-document.getElementById('googleSignInMobile').addEventListener('click', signInWithGoogle);
-document.getElementById('emailSignIn').addEventListener('click', signInWithEmail);
-document.getElementById('createAccount').addEventListener('click', createAccount);
+    function signOut() {
+      auth.signOut()
+        .then(() => {
+          console.log("User signed out");
+        })
+        .catch((error) => {
+          console.error("Error signing out:", error);
+        });
+    }
+
+    // Auth State Listener
+    auth.onAuthStateChanged((user) => {
+      const loginContainer = document.getElementById('login-container');
+      const appContent = document.getElementById('app-content');
+      const userInfo = document.getElementById('user-info');
+
       if (user) {
         loginContainer.style.display = 'none';
         appContent.style.display = 'block';
