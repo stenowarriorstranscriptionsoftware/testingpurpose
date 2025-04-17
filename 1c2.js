@@ -470,7 +470,3 @@ function analyzeMistakes(originalText, userText) {
     
     return analysis;
 }
-function signInWithGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithRedirect(provider);
-}
