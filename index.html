@@ -15,12 +15,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
 </head>
 
 <body>
@@ -28,16 +22,51 @@
   <div id="login-container" class="login-container">
     <div class="login-content">
       <h2>Welcome to Steno Warriors</h2>
-      <p>Please sign in with Google to access the transcription tests</p>
-      <button id="googleSignIn" class="google-signin-btn">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
-        Sign in with Google
-      </button>
-      <div id="login-loading" style="display: none; margin-top: 20px;">
-        <p>Redirecting to Google for authentication...</p>
-        <div style="text-align: center;">
-          <div class="spinner" style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #4361ee; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+      
+      <!-- Login Form -->
+      <div id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="Enter your email">
         </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter your password">
+          <a href="#" onclick="resetPassword()" style="font-size: 0.9rem; display: block; text-align: right; margin-top: 5px;">Forgot password?</a>
+        </div>
+        <button id="login-btn" class="auth-btn">Login</button>
+        <p style="margin-top: 15px; text-align: center;">
+          Don't have an account? <a href="#" id="show-register">Register</a>
+        </p>
+        <div class="auth-divider">OR</div>
+        <button id="googleSignIn" class="google-signin-btn">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
+          Sign in with Google
+        </button>
+      </div>
+      
+      <!-- Registration Form (initially hidden) -->
+      <div id="register-form" style="display: none;">
+        <div class="form-group">
+          <label for="register-name">Full Name</label>
+          <input type="text" id="register-name" placeholder="Enter your full name">
+        </div>
+        <div class="form-group">
+          <label for="register-email">Email</label>
+          <input type="email" id="register-email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label for="register-password">Password</label>
+          <input type="password" id="register-password" placeholder="Create a password (min 6 chars)">
+        </div>
+        <div class="form-group">
+          <label for="register-confirm">Confirm Password</label>
+          <input type="password" id="register-confirm" placeholder="Confirm your password">
+        </div>
+        <button id="register-btn" class="auth-btn">Register</button>
+        <p style="margin-top: 15px; text-align: center;">
+          Already have an account? <a href="#" id="show-login">Login</a>
+        </p>
       </div>
     </div>
   </div>
@@ -143,17 +172,17 @@
 
   <script>
     // Firebase Configuration
-   const firebaseConfig = {
-  apiKey: "AIzaSyB9vruL_f9KZPC-Ihdj3UuqcXSgy1Lzqm0",
-  authDomain: "score-collection.firebaseapp.com",
-  databaseURL: "https://score-collection-default-rtdb.firebaseio.com",
-  projectId: "score-collection",
-  storageBucket: "score-collection.firebasestorage.app",
-  messagingSenderId: "720795371551",
-  appId: "1:720795371551:web:78ff7863cbeaca0161ed2a",
-  measurementId: "G-L6MHY1KCZ0"
-};
-    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjY-pE5jxQJgKqDZrcE7Im66_5r-X_mRA",
+      authDomain: "setup-login-page.firebaseapp.com",
+      databaseURL: "https://setup-login-page-default-rtdb.firebaseio.com",
+      projectId: "setup-login-page",
+      storageBucket: "setup-login-page.appspot.com",
+      messagingSenderId: "341251531099",
+      appId: "1:341251531099:web:f4263621455541ffdc3a7e",
+      measurementId: "G-ZXFC7NR9HV"
+    };
+
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -162,17 +191,13 @@
     // Authentication Functions
     function signInWithGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
-      // Show loading indicator
-      document.getElementById('login-loading').style.display = 'block';
-      document.getElementById('googleSignIn').style.display = 'none';
-      
-      // Use redirect method instead of popup
-      auth.signInWithRedirect(provider)
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          console.log("User signed in:", result.user);
+        })
         .catch((error) => {
           console.error("Error signing in:", error);
-          document.getElementById('login-loading').style.display = 'none';
-          document.getElementById('googleSignIn').style.display = 'flex';
-          alert("Error signing in: " + error.message);
+          showError('login-form', error.message);
         });
     }
 
@@ -180,15 +205,151 @@
       auth.signOut()
         .then(() => {
           console.log("User signed out");
-          // After sign out, clear any pending redirect
-          return auth.getRedirectResult();
         })
         .catch((error) => {
           console.error("Error signing out:", error);
         });
     }
 
-    // Auth State Listener with redirect handling
+    // Email/Password Authentication Functions
+    function loginWithEmail() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      
+      // Clear previous errors
+      document.getElementById('login-form').querySelectorAll('.error-message').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      // Simple validation
+      if (!email) {
+        showError('login-email', 'Email is required');
+        return;
+      }
+      
+      if (!password) {
+        showError('login-password', 'Password is required');
+        return;
+      }
+      
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          console.log("User logged in:", userCredential.user);
+        })
+        .catch((error) => {
+          let errorMessage = "Login failed. Please try again.";
+          if (error.code === "auth/user-not-found") {
+            errorMessage = "No user found with this email.";
+          } else if (error.code === "auth/wrong-password") {
+            errorMessage = "Incorrect password.";
+          } else if (error.code === "auth/invalid-email") {
+            errorMessage = "Invalid email format.";
+          }
+          showError('login-password', errorMessage);
+        });
+    }
+
+    function registerWithEmail() {
+      const name = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('register-confirm').value;
+      
+      // Clear previous errors
+      document.getElementById('register-form').querySelectorAll('.error-message').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      // Validation
+      if (!name) {
+        showError('register-name', 'Name is required');
+        return;
+      }
+      
+      if (!email) {
+        showError('register-email', 'Email is required');
+        return;
+      }
+      
+      if (!password) {
+        showError('register-password', 'Password is required');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showError('register-password', 'Password must be at least 6 characters');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        showError('register-confirm', 'Passwords do not match');
+        return;
+      }
+      
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // Update user profile with name
+          return userCredential.user.updateProfile({
+            displayName: name
+          });
+        })
+        .then(() => {
+          console.log("User registered successfully");
+        })
+        .catch((error) => {
+          let errorMessage = "Registration failed. Please try again.";
+          if (error.code === "auth/email-already-in-use") {
+            errorMessage = "Email already in use.";
+          } else if (error.code === "auth/invalid-email") {
+            errorMessage = "Invalid email address.";
+          } else if (error.code === "auth/weak-password") {
+            errorMessage = "Password should be at least 6 characters.";
+          }
+          showError('register-email', errorMessage);
+        });
+    }
+
+    function resetPassword() {
+      const email = document.getElementById('login-email').value || prompt("Please enter your email address to reset your password:");
+      if (email) {
+        auth.sendPasswordResetEmail(email)
+          .then(() => {
+            alert("Password reset email sent. Please check your inbox.");
+          })
+          .catch((error) => {
+            alert("Error sending reset email: " + error.message);
+          });
+      }
+    }
+
+    function showError(fieldId, message) {
+      const field = document.getElementById(fieldId);
+      let errorElement = field.nextElementSibling;
+      
+      if (!errorElement || !errorElement.classList.contains('error-message')) {
+        errorElement = document.createElement('div');
+        errorElement.className = 'error-message';
+        field.parentNode.insertBefore(errorElement, field.nextSibling);
+      }
+      
+      errorElement.textContent = message;
+      errorElement.style.display = 'block';
+    }
+
+    function toggleAuthForms() {
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      
+      if (loginForm.style.display === 'none') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+      } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+      }
+    }
+
+    // Auth State Listener
     auth.onAuthStateChanged((user) => {
       const loginContainer = document.getElementById('login-container');
       const appContent = document.getElementById('app-content');
@@ -198,27 +359,22 @@
         loginContainer.style.display = 'none';
         appContent.style.display = 'block';
         userInfo.style.display = 'block';
-        document.getElementById('user-photo').src = user.photoURL || 'https://via.placeholder.com/40';
+        
+        // Set user info
+        if (user.photoURL) {
+          document.getElementById('user-photo').src = user.photoURL;
+        } else {
+          // Default avatar for email users
+          const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'U')}&background=4361ee&color=fff`;
+          document.getElementById('user-photo').src = defaultAvatar;
+        }
+        
         document.getElementById('user-name').textContent = user.displayName || user.email;
         populateLeaderboardTestSelect();
       } else {
         loginContainer.style.display = 'flex';
         appContent.style.display = 'none';
         userInfo.style.display = 'none';
-        document.getElementById('login-loading').style.display = 'none';
-        document.getElementById('googleSignIn').style.display = 'flex';
-        
-        // Check for redirect result
-        auth.getRedirectResult()
-          .then((result) => {
-            if (result.user) {
-              // User signed in via redirect
-              console.log("User signed in via redirect:", result.user);
-            }
-          })
-          .catch((error) => {
-            console.error("Error getting redirect result:", error);
-          });
       }
     });
 
@@ -599,6 +755,19 @@
     // Event Listeners
     document.getElementById('googleSignIn').addEventListener('click', signInWithGoogle);
     document.getElementById('signOut').addEventListener('click', signOut);
+    document.getElementById('login-btn').addEventListener('click', loginWithEmail);
+    document.getElementById('register-btn').addEventListener('click', registerWithEmail);
+    document.getElementById('show-register').addEventListener('click', toggleAuthForms);
+    document.getElementById('show-login').addEventListener('click', toggleAuthForms);
+
+    // Add keypress listeners for form submission
+    document.getElementById('login-password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') loginWithEmail();
+    });
+
+    document.getElementById('register-confirm').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') registerWithEmail();
+    });
   </script>
 </body>
 </html>
