@@ -24,7 +24,6 @@
           <img id="userPhoto" class="user-photo">
           <span id="userName"></span>
           <button id="logoutBtn" class="auth-btn secondary-btn">Logout</button>
-          <button id="securitySettingsBtn" class="secondary-btn">Security Settings</button>
         </div>
       </div>
     </header>
@@ -42,17 +41,9 @@
             <label for="loginPassword">Password</label>
             <input type="password" id="loginPassword" placeholder="Enter your password">
           </div>
-          <div class="remember-me">
-            <input type="checkbox" id="rememberMe">
-            <label for="rememberMe">Remember me</label>
-          </div>
           <button id="emailLoginBtn" class="auth-btn">Login</button>
           <button id="googleLoginBtn" class="auth-btn secondary-btn">Login with Google</button>
-          <p class="auth-links">
-            <a href="#" id="forgotPassword">Forgot password?</a>
-            <span>•</span>
-            <a href="#" id="resendVerification">Resend verification email</a>
-          </p>
+          <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
         </div>
 
         <div id="registerForm" class="hidden">
@@ -69,34 +60,12 @@
             <label for="registerPassword">Password</label>
             <input type="password" id="registerPassword" placeholder="Create a password (min 6 characters)">
           </div>
-          <div class="password-strength">
-            <div class="strength-meter">
-              <div class="strength-bar"></div>
-            </div>
-            <span class="strength-text">Password Strength: Weak</span>
-          </div>
           <div class="input-group">
             <label for="confirmPassword">Confirm Password</label>
             <input type="password" id="confirmPassword" placeholder="Confirm your password">
           </div>
           <button id="registerBtn" class="auth-btn">Register</button>
           <button id="showLogin" class="auth-btn secondary-btn">Back to Login</button>
-        </div>
-
-        <div id="passwordResetForm" class="hidden">
-          <h3>Reset Password</h3>
-          <div class="input-group">
-            <label for="resetEmail">Email</label>
-            <input type="email" id="resetEmail" placeholder="Enter your email">
-          </div>
-          <button id="sendResetBtn" class="auth-btn">Send Reset Link</button>
-          <button id="cancelReset" class="auth-btn secondary-btn">Cancel</button>
-        </div>
-
-        <div id="verificationSent" class="hidden">
-          <h3>Verification Email Sent</h3>
-          <p>We've sent a verification link to your email address.</p>
-          <button id="closeVerification" class="auth-btn">OK</button>
         </div>
       </section>
 
@@ -224,30 +193,6 @@
     <footer>
       <p>© 2023 Steno Warriors | Professional Transcription Tool</p>
     </footer>
-  </div>
-
-  <!-- Modals and overlays -->
-  <div id="securityModal" class="modal hidden">
-    <div class="modal-content">
-      <h3>Security Settings</h3>
-      <div class="security-option">
-        <h4>Two-Factor Authentication</h4>
-        <p>Add an extra layer of security to your account</p>
-        <button id="enable2faBtn" class="secondary-btn">Enable 2FA</button>
-      </div>
-      <div class="security-option">
-        <h4>Login Activity</h4>
-        <div id="loginActivityList"></div>
-      </div>
-      <div class="modal-buttons">
-        <button id="closeSecurityModal" class="secondary-btn">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast" class="toast hidden"></div>
-  <div id="loadingOverlay" class="loading-overlay hidden">
-    <div class="spinner"></div>
   </div>
 
   <script src="script.js"></script>

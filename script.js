@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const customTitle = document.getElementById('customTitle');
   const customOriginal = document.getElementById('customOriginal');
 
-  // Authentication elements
+  // New authentication elements
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
   const emailLoginBtn = document.getElementById('emailLoginBtn');
@@ -71,24 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const registerEmail = document.getElementById('registerEmail');
   const registerPassword = document.getElementById('registerPassword');
   const confirmPassword = document.getElementById('confirmPassword');
-  const forgotPassword = document.getElementById('forgotPassword');
-  const resendVerification = document.getElementById('resendVerification');
-  const passwordResetForm = document.getElementById('passwordResetForm');
-  const resetEmail = document.getElementById('resetEmail');
-  const sendResetBtn = document.getElementById('sendResetBtn');
-  const cancelReset = document.getElementById('cancelReset');
-  const verificationSent = document.getElementById('verificationSent');
-  const closeVerification = document.getElementById('closeVerification');
-  const rememberMe = document.getElementById('rememberMe');
-  const toast = document.getElementById('toast');
-  const loadingOverlay = document.getElementById('loadingOverlay');
-  const securitySettingsBtn = document.getElementById('securitySettingsBtn');
-  const securityModal = document.getElementById('securityModal');
-  const enable2faBtn = document.getElementById('enable2faBtn');
-  const loginActivityList = document.getElementById('loginActivityList');
-  const closeSecurityModal = document.getElementById('closeSecurityModal');
-  const strengthBar = document.querySelector('.strength-bar');
-  const strengthText = document.querySelector('.strength-text');
 
   // Timer variables
   let timerInterval;
@@ -111,59 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Password strength meter
-  registerPassword.addEventListener('input', updatePasswordStrength);
-
-  function updatePasswordStrength() {
-    const password = registerPassword.value;
-    let strength = 0;
-    
-    // Length check
-    if (password.length >= 8) strength += 1;
-    if (password.length >= 12) strength += 1;
-    
-    // Complexity checks
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/[0-9]/.test(password)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    
-    // Update UI
-    const width = (strength / 5) * 100;
-    strengthBar.style.width = `${width}%`;
-    
-    // Color and text
-    if (strength <= 2) {
-      strengthBar.style.backgroundColor = '#e74c3c';
-      strengthText.textContent = 'Password Strength: Weak';
-    } else if (strength <= 4) {
-      strengthBar.style.backgroundColor = '#f39c12';
-      strengthText.textContent = 'Password Strength: Moderate';
-    } else {
-      strengthBar.style.backgroundColor = '#2ecc71';
-      strengthText.textContent = 'Password Strength: Strong';
-    }
-  }
-
-  // Toast notifications
-  function showToast(message, isSuccess = true) {
-    toast.textContent = message;
-    toast.style.backgroundColor = isSuccess ? '#2ecc71' : '#e74c3c';
-    toast.classList.add('show');
-    
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3000);
-  }
-
-  // Loading indicator
-  function showLoading(show) {
-    if (show) {
-      loadingOverlay.classList.remove('hidden');
-    } else {
-      loadingOverlay.classList.add('hidden');
-    }
-  }
-
   // Toggle between login and register forms
   showRegister.addEventListener('click', (e) => {
     e.preventDefault();
@@ -181,47 +110,19 @@ document.addEventListener('DOMContentLoaded', function() {
   emailLoginBtn.addEventListener('click', () => {
     const email = loginEmail.value.trim();
     const password = loginPassword.value.trim();
-    const persistence = rememberMe.checked ? 
-      firebase.auth.Auth.Persistence.LOCAL : 
-      firebase.auth.Auth.Persistence.SESSION;
     
     if (!email || !password) {
-      showToast('Please enter both email and password', false);
+      alert('Please enter both email and password');
       return;
     }
     
-    showLoading(true);
-    
-    auth.setPersistence(persistence)
+    auth.signInWithEmailAndPassword(email, password)
       .then(() => {
-        return auth.signInWithEmailAndPassword(email, password);
-      })
-      .then(() => {
-        showToast('Login successful!');
+        // Success - auth state listener will handle the UI update
       })
       .catch(error => {
         console.error('Login error:', error);
-        showToast(`Login failed: ${error.message}`, false);
-      })
-      .finally(() => {
-        showLoading(false);
-      });
-  });
-
-  // Google login handler
-  googleLoginBtn.addEventListener('click', () => {
-    showLoading(true);
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-      .then(() => {
-        showToast('Google login successful!');
-      })
-      .catch(error => {
-        console.error('Google login error:', error);
-        showToast('Google login failed. Please try again.', false);
-      })
-      .finally(() => {
-        showLoading(false);
+        alert('Login failed: ' + error.message);
       });
   });
 
@@ -233,34 +134,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirm = confirmPassword.value.trim();
     
     if (!name || !email || !password || !confirm) {
-      showToast('Please fill in all fields', false);
+      alert('Please fill in all fields');
       return;
     }
     
     if (password !== confirm) {
-      showToast('Passwords do not match', false);
+      alert('Passwords do not match');
       return;
     }
     
     if (password.length < 6) {
-      showToast('Password should be at least 6 characters', false);
+      alert('Password should be at least 6 characters');
       return;
     }
     
-    showLoading(true);
-    
     auth.createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
+        // Update user profile with display name
         return userCredential.user.updateProfile({
           displayName: name
         });
       })
       .then(() => {
-        // Send verification email
-        return auth.currentUser.sendEmailVerification();
-      })
-      .then(() => {
-        showToast('Registration successful! Verification email sent.');
+        alert('Registration successful! You are now logged in.');
         // Clear form
         registerName.value = '';
         registerEmail.value = '';
@@ -269,172 +165,36 @@ document.addEventListener('DOMContentLoaded', function() {
         // Switch to login form
         registerForm.classList.add('hidden');
         loginForm.classList.remove('hidden');
-        verificationSent.classList.remove('hidden');
       })
       .catch(error => {
         console.error('Registration error:', error);
-        showToast(`Registration failed: ${error.message}`, false);
-      })
-      .finally(() => {
-        showLoading(false);
+        alert('Registration failed: ' + error.message);
       });
   });
 
-  // Password reset functionality
-  forgotPassword.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginForm.classList.add('hidden');
-    passwordResetForm.classList.remove('hidden');
-  });
-
-  cancelReset.addEventListener('click', (e) => {
-    e.preventDefault();
-    passwordResetForm.classList.add('hidden');
-    loginForm.classList.remove('hidden');
-  });
-
-  sendResetBtn.addEventListener('click', () => {
-    const email = resetEmail.value.trim();
-    
-    if (!email) {
-      showToast('Please enter your email address', false);
-      return;
-    }
-    
-    showLoading(true);
-    
-    auth.sendPasswordResetEmail(email)
-      .then(() => {
-        showToast('Password reset email sent! Check your inbox.');
-        passwordResetForm.classList.add('hidden');
-        loginForm.classList.remove('hidden');
-        resetEmail.value = '';
-      })
+  // Google login handler
+  googleLoginBtn.addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
       .catch(error => {
-        console.error('Reset error:', error);
-        showToast(`Error sending reset email: ${error.message}`, false);
-      })
-      .finally(() => {
-        showLoading(false);
+        console.error('Google login error:', error);
+        alert('Google login failed. Please try again.');
       });
-  });
-
-  // Email verification
-  resendVerification.addEventListener('click', (e) => {
-    e.preventDefault();
-    const user = auth.currentUser;
-    
-    if (user && !user.emailVerified) {
-      showLoading(true);
-      user.sendEmailVerification()
-        .then(() => {
-          showToast('Verification email resent!');
-          verificationSent.classList.remove('hidden');
-        })
-        .catch(error => {
-          console.error('Verification error:', error);
-          showToast(`Error sending verification: ${error.message}`, false);
-        })
-        .finally(() => {
-          showLoading(false);
-        });
-    } else if (!user) {
-      showToast('Please login first', false);
-    } else {
-      showToast('Your email is already verified!');
-    }
-  });
-
-  closeVerification.addEventListener('click', () => {
-    verificationSent.classList.add('hidden');
-  });
-
-  // Two-Factor Authentication Setup
-  enable2faBtn.addEventListener('click', () => {
-    showLoading(true);
-    
-    // In a real implementation, you would integrate with Firebase's 2FA
-    // This is a mock implementation
-    setTimeout(() => {
-      showLoading(false);
-      showToast('Two-factor authentication setup initiated. Check your email for next steps.');
-    }, 1500);
-  });
-
-  // Login Activity Monitoring
-  function loadLoginActivity(userId) {
-    database.ref(`loginActivity/${userId}`).limitToLast(5).once('value')
-      .then(snapshot => {
-        loginActivityList.innerHTML = '';
-        const activities = snapshot.val() || {};
-        
-        Object.entries(activities).forEach(([timestamp, activity]) => {
-          const item = document.createElement('div');
-          item.className = 'login-activity-item';
-          item.innerHTML = `
-            <strong>${new Date(parseInt(timestamp)).toLocaleString()}</strong>
-            <div>From ${activity.ip} (${activity.device})</div>
-            <div>${activity.location || 'Unknown location'}</div>
-          `;
-          loginActivityList.appendChild(item);
-        });
-      })
-      .catch(error => {
-        console.error('Error loading login activity:', error);
-        showToast('Error loading login activity', false);
-      });
-  }
-
-  // Record login activity
-  function recordLoginActivity(user) {
-    const activity = {
-      timestamp: Date.now(),
-      ip: '192.168.1.1', // In production, get from request
-      device: navigator.userAgent.substring(0, 50),
-      location: 'Unknown' // In production, use geolocation service
-    };
-    
-    database.ref(`loginActivity/${user.uid}`).push(activity)
-      .catch(error => {
-        console.error('Error recording login activity:', error);
-      });
-  }
-
-  // Security Modal
-  securitySettingsBtn.addEventListener('click', () => {
-    const user = auth.currentUser;
-    if (user) {
-      loadLoginActivity(user.uid);
-      securityModal.classList.remove('hidden');
-    }
-  });
-
-  closeSecurityModal.addEventListener('click', () => {
-    securityModal.classList.add('hidden');
   });
 
   // Auth state listener
   auth.onAuthStateChanged(user => {
     if (user) {
-      // Check if email is verified (only for email/password users)
-      if (!user.emailVerified && user.providerData[0].providerId === 'password') {
-        showToast('Please verify your email address. Check your inbox.', false);
-      }
-      
-      // Record login activity
-      recordLoginActivity(user);
-      
-      // Update UI
+      // User is signed in
       loginBtn.classList.add('hidden');
       userInfo.classList.remove('hidden');
-      
-      // Set user photo
+      // Check if user has a photo URL (Google users will, email users won't)
       if (user.photoURL) {
         userPhoto.src = user.photoURL;
       } else {
+        // Use a default avatar for email users
         userPhoto.src = 'https://www.gravatar.com/avatar/' + user.uid + '?d=identicon';
       }
-      
       userName.textContent = user.displayName || 'User';
       loginPrompt.classList.add('hidden');
       customTestSection.classList.remove('hidden');
@@ -451,23 +211,17 @@ document.addEventListener('DOMContentLoaded', function() {
       customTestSection.classList.add('hidden');
       globalTestsSection.classList.add('hidden');
       leaderboardSection.classList.add('hidden');
+      // Show login form by default
       loginForm.classList.remove('hidden');
       registerForm.classList.add('hidden');
-      passwordResetForm.classList.add('hidden');
     }
   });
 
   // Logout handler
   logoutBtn.addEventListener('click', () => {
-    auth.signOut()
-      .then(() => {
-        showToast('Logged out successfully');
-      })
-      .catch(error => {
-        console.error('Logout error:', error);
-        showToast('Logout failed. Please try again.', false);
-      });
+    auth.signOut();
   });
+
 
   // Leaderboard filter change handler
   leaderboardFilter.addEventListener('change', () => {
