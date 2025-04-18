@@ -2,9 +2,8 @@
 const firebaseConfig = {
   apiKey: "AIzaSyBjY-pE5jxQJgKqDZrcE7Im66_5r-X_mRA",
   authDomain: "setup-login-page.firebaseapp.com",
-  databaseURL: "https://setup-login-page-default-rtdb.firebaseio.com",
   projectId: "setup-login-page",
-  storageBucket: "setup-login-page.firebasestorage.app",
+  storageBucket: "setup-login-page.appspot.com",
   messagingSenderId: "341251531099",
   appId: "1:341251531099:web:f4263621455541ffdc3a7e",
   measurementId: "G-ZXFC7NR9HV"
@@ -19,12 +18,6 @@ const { jsPDF } = window.jspdf;
 
 document.addEventListener('DOMContentLoaded', function() {
   // DOM elements
-  const loginBtn = document.getElementById('loginBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const userInfo = document.getElementById('userInfo');
-  const userPhoto = document.getElementById('userPhoto');
-  const userName = document.getElementById('userName');
-  const loginPrompt = document.getElementById('loginPrompt');
   const originalTextEl = document.getElementById('originalText');
   const userTextEl = document.getElementById('userText');
   const compareBtn = document.getElementById('compareBtn');
@@ -43,71 +36,108 @@ document.addEventListener('DOMContentLoaded', function() {
   const originalTextGroup = document.getElementById('originalTextGroup');
   const timerOptions = document.getElementById('timerOptions');
   const timerDisplay = document.getElementById('timerDisplay');
+
+  // Auth UI Elements
   const loginBtn = document.getElementById('loginBtn');
   const logoutBtn = document.getElementById('logoutBtn');
   const userInfo = document.getElementById('userInfo');
   const userPhoto = document.getElementById('userPhoto');
   const userName = document.getElementById('userName');
   const loginPrompt = document.getElementById('loginPrompt');
-  const customTestSection = document.getElementById('customTestSection');
-  const globalTestsSection = document.getElementById('globalTestsSection');
-  const globalTestsList = document.getElementById('globalTestsList');
-  const leaderboardSection = document.getElementById('leaderboardSection');
-  const leaderboardList = document.getElementById('leaderboardList');
-  const leaderboardFilter = document.getElementById('leaderboardFilter');
-  const testNameFilter = document.getElementById('testNameFilter');
-  const prevPageBtn = document.getElementById('prevPageBtn');
-  const nextPageBtn = document.getElementById('nextPageBtn');
-  const leaderboardPagination = document.getElementById('leaderboardPagination');
-// Email/password auth
-const emailInput = document.getElementById('emailInput');
-const passwordInput = document.getElementById('passwordInput');
-const signupBtn = document.getElementById('signupBtn');
-const emailLoginBtn = document.getElementById('emailLoginBtn');
 
-signupBtn.addEventListener('click', () => {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+  // NEW: Email/password auth elements
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const signupBtn = document.getElementById('signupBtn');
+  const emailLoginBtn = document.getElementById('emailLoginBtn');
 
-  if (!email || !password) {
-    alert("Please enter both email and password.");
-    return;
-  }
+  // Email/password signup
+  signupBtn.addEventListener('click', () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
 
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      alert('Signup successful!');
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        alert('Signup successful!');
+        emailInput.value = '';
+        passwordInput.value = '';
+      })
+      .catch(error => {
+        console.error('Signup error:', error);
+        alert(error.message);
+      });
+  });
+
+  // Email/password login
+  emailLoginBtn.addEventListener('click', () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        emailInput.value = '';
+        passwordInput.value = '';
+      })
+      .catch(error => {
+        console.error('Login error:', error);
+        alert(error.message);
+      });
+  });
+
+  // Google login
+  loginBtn.addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+      .catch(error => {
+        console.error('Google login error:', error);
+        alert('Login failed. Please try again.');
+      });
+  });
+
+  // Logout
+  logoutBtn.addEventListener('click', () => {
+    auth.signOut();
+  });
+
+  // Auth state listener
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      loginBtn.classList.add('hidden');
       emailInput.value = '';
       passwordInput.value = '';
-    })
-    .catch(error => {
-      console.error('Signup error:', error);
-      alert(error.message);
-    });
-});
+      document.getElementById('emailAuthForm').classList.add('hidden');
+      userInfo.classList.remove('hidden');
+      userPhoto.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.email);
+      userName.textContent = user.displayName || user.email;
+      loginPrompt.classList.add('hidden');
+      document.getElementById('customTestSection').classList.remove('hidden');
+      document.getElementById('globalTestsSection').classList.remove('hidden');
+      document.getElementById('leaderboardSection').classList.remove('hidden');
+      loadGlobalTests();
+      loadLeaderboard();
+      cleanupOldData();
+    } else {
+      loginBtn.classList.remove('hidden');
+      document.getElementById('emailAuthForm').classList.remove('hidden');
+      userInfo.classList.add('hidden');
+      loginPrompt.classList.remove('hidden');
+      document.getElementById('customTestSection').classList.add('hidden');
+      document.getElementById('globalTestsSection').classList.add('hidden');
+      document.getElementById('leaderboardSection').classList.add('hidden');
+    }
+  });
 
-emailLoginBtn.addEventListener('click', () => {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!email || !password) {
-    alert("Please enter both email and password.");
-    return;
-  }
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      emailInput.value = '';
-      passwordInput.value = '';
-    })
-    .catch(error => {
-      console.error('Login error:', error);
-      alert(error.message);
-    });
-});
-
-
-  // Custom Test Logic
+ // Custom Test Logic
   const saveBtn = document.getElementById('saveTestBtn');
   const clearBtn = document.getElementById('clearTestsBtn');
   const customTitle = document.getElementById('customTitle');
