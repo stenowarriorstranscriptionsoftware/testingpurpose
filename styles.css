@@ -659,16 +659,50 @@ footer {
 .secondary-btn {
   background-color: var(--gray);
 }
-#emailAuthForm {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+/* Add to your styles.css */
+.login-prompt {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-#emailAuthForm input {
-  padding: 0.6rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.login-prompt h3 {
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.login-prompt input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
   font-family: 'Poppins', sans-serif;
+  transition: all 0.3s;
+}
+
+.login-prompt input:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.login-prompt p {
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--gray);
+}
+
+.login-prompt a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-prompt a:hover {
+  text-decoration: underline;
 }
