@@ -18,6 +18,12 @@ const { jsPDF } = window.jspdf;
 
 document.addEventListener('DOMContentLoaded', function() {
   // DOM elements
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const userInfo = document.getElementById('userInfo');
+  const userPhoto = document.getElementById('userPhoto');
+  const userName = document.getElementById('userName');
+  const loginPrompt = document.getElementById('loginPrompt');
   const originalTextEl = document.getElementById('originalText');
   const userTextEl = document.getElementById('userText');
   const compareBtn = document.getElementById('compareBtn');
@@ -52,6 +58,53 @@ document.addEventListener('DOMContentLoaded', function() {
   const prevPageBtn = document.getElementById('prevPageBtn');
   const nextPageBtn = document.getElementById('nextPageBtn');
   const leaderboardPagination = document.getElementById('leaderboardPagination');
+// Email/password auth
+const emailInput = document.getElementById('emailInput');
+const passwordInput = document.getElementById('passwordInput');
+const signupBtn = document.getElementById('signupBtn');
+const emailLoginBtn = document.getElementById('emailLoginBtn');
+
+signupBtn.addEventListener('click', () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!email || !password) {
+    alert("Please enter both email and password.");
+    return;
+  }
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      alert('Signup successful!');
+      emailInput.value = '';
+      passwordInput.value = '';
+    })
+    .catch(error => {
+      console.error('Signup error:', error);
+      alert(error.message);
+    });
+});
+
+emailLoginBtn.addEventListener('click', () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!email || !password) {
+    alert("Please enter both email and password.");
+    return;
+  }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      emailInput.value = '';
+      passwordInput.value = '';
+    })
+    .catch(error => {
+      console.error('Login error:', error);
+      alert(error.message);
+    });
+});
+
 
   // Custom Test Logic
   const saveBtn = document.getElementById('saveTestBtn');

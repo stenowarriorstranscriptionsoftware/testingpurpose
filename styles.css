@@ -659,3 +659,16 @@ footer {
 .secondary-btn {
   background-color: var(--gray);
 }
+#emailAuthForm {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#emailAuthForm input {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-family: 'Poppins', sans-serif;
+}

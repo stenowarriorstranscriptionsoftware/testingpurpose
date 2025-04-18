@@ -19,7 +19,20 @@
       <h1>Steno Warriors</h1>
       <p class="subtitle">Advanced Transcription Comparison Tool</p>
       <div id="authSection">
+        <!-- Google Login -->
         <button id="loginBtn" class="auth-btn">Login with Google</button>
+
+        <!-- Email Auth Form -->
+        <div id="emailAuthForm">
+          <input type="email" id="emailInput" placeholder="Email" />
+          <input type="password" id="passwordInput" placeholder="Password" />
+          <div class="button-group">
+            <button id="signupBtn" class="auth-btn">Sign Up</button>
+            <button id="emailLoginBtn" class="auth-btn secondary-btn">Login</button>
+          </div>
+        </div>
+
+        <!-- Logged In User Info -->
         <div id="userInfo" class="hidden">
           <img id="userPhoto" class="user-photo">
           <span id="userName"></span>
@@ -27,6 +40,14 @@
         </div>
       </div>
     </header>
+
+    <!-- rest of your page remains the same -->
+    <!-- main, footer, script tag etc. -->
+    <script src="script.js"></script>
+  </div>
+</body>
+</html>
+
 
     <main>
       <!-- Login Prompt -->
