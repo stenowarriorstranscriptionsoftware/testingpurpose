@@ -1,9 +1,11 @@
 // Initialize Firebase
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBjY-pE5jxQJgKqDZrcE7Im66_5r-X_mRA",
   authDomain: "setup-login-page.firebaseapp.com",
+  databaseURL: "https://setup-login-page-default-rtdb.firebaseio.com",
   projectId: "setup-login-page",
-  storageBucket: "setup-login-page.appspot.com",
+  storageBucket: "setup-login-page.firebasestorage.app",
   messagingSenderId: "341251531099",
   appId: "1:341251531099:web:f4263621455541ffdc3a7e",
   measurementId: "G-ZXFC7NR9HV"
