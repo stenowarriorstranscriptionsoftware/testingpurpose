@@ -15,6 +15,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 
 <body>
@@ -27,6 +33,12 @@
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
         Sign in with Google
       </button>
+      <div id="login-loading" style="display: none; margin-top: 20px;">
+        <p>Redirecting to Google for authentication...</p>
+        <div style="text-align: center;">
+          <div class="spinner" style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #4361ee; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -131,16 +143,17 @@
 
   <script>
     // Firebase Configuration
-   const firebaseConfig = {
-  apiKey: "AIzaSyB9vruL_f9KZPC-Ihdj3UuqcXSgy1Lzqm0",
-  authDomain: "score-collection.firebaseapp.com",
-  databaseURL: "https://score-collection-default-rtdb.firebaseio.com",
-  projectId: "score-collection",
-  storageBucket: "score-collection.firebasestorage.app",
-  messagingSenderId: "720795371551",
-  appId: "1:720795371551:web:78ff7863cbeaca0161ed2a",
-  measurementId: "G-L6MHY1KCZ0"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9vruL_f9KZPC-Ihdj3UuqcXSgy1Lzqm0",
+      authDomain: "score-collection.firebaseapp.com",
+      databaseURL: "https://score-collection-default-rtdb.firebaseio.com",
+      projectId: "score-collection",
+      storageBucket: "score-collection.firebasestorage.app",
+      messagingSenderId: "720795371551",
+      appId: "1:720795371551:web:78ff7863cbeaca0161ed2a",
+      measurementId: "G-L6MHY1KCZ0"
+    };
+    
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -149,12 +162,16 @@
     // Authentication Functions
     function signInWithGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then((result) => {
-          console.log("User signed in:", result.user);
-        })
+      // Show loading indicator
+      document.getElementById('login-loading').style.display = 'block';
+      document.getElementById('googleSignIn').style.display = 'none';
+      
+      // Use redirect method instead of popup
+      auth.signInWithRedirect(provider)
         .catch((error) => {
           console.error("Error signing in:", error);
+          document.getElementById('login-loading').style.display = 'none';
+          document.getElementById('googleSignIn').style.display = 'flex';
           alert("Error signing in: " + error.message);
         });
     }
@@ -163,13 +180,15 @@
       auth.signOut()
         .then(() => {
           console.log("User signed out");
+          // After sign out, clear any pending redirect
+          return auth.getRedirectResult();
         })
         .catch((error) => {
           console.error("Error signing out:", error);
         });
     }
 
-    // Auth State Listener
+    // Auth State Listener with redirect handling
     auth.onAuthStateChanged((user) => {
       const loginContainer = document.getElementById('login-container');
       const appContent = document.getElementById('app-content');
@@ -186,6 +205,20 @@
         loginContainer.style.display = 'flex';
         appContent.style.display = 'none';
         userInfo.style.display = 'none';
+        document.getElementById('login-loading').style.display = 'none';
+        document.getElementById('googleSignIn').style.display = 'flex';
+        
+        // Check for redirect result
+        auth.getRedirectResult()
+          .then((result) => {
+            if (result.user) {
+              // User signed in via redirect
+              console.log("User signed in via redirect:", result.user);
+            }
+          })
+          .catch((error) => {
+            console.error("Error getting redirect result:", error);
+          });
       }
     });
 
