@@ -14,40 +14,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
 </head>
 <body>
-  <!-- Auth Modal -->
-  <div id="authModal" class="modal hidden">
-    <div class="modal-content">
-      <h2>Welcome to Steno Warriors</h2>
-      <div id="authForm">
-        <div class="input-group">
-          <label for="authEmail">Email</label>
-          <input type="email" id="authEmail" placeholder="Enter your email">
-        </div>
-        <div class="input-group">
-          <label for="authPassword">Password</label>
-          <input type="password" id="authPassword" placeholder="Enter your password">
-        </div>
-        <div class="button-group">
-          <button id="loginEmailBtn" class="auth-btn">Login</button>
-          <button id="registerBtn" class="secondary-btn">Register</button>
-        </div>
-        <div class="auth-divider">or</div>
-        <button id="googleLoginBtn" class="auth-btn google-btn">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
-          Continue with Google
-        </button>
-        <div id="authMessage"></div>
-      </div>
-      <button id="closeAuthModal" class="close-btn">×</button>
-    </div>
-  </div>
-
   <div class="container">
     <header>
       <h1>Steno Warriors</h1>
       <p class="subtitle">Advanced Transcription Comparison Tool</p>
       <div id="authSection">
-        <button id="loginBtn" class="auth-btn">Login / Register</button>
+        <button id="loginBtn" class="auth-btn">Login with Google</button>
         <div id="userInfo" class="hidden">
           <img id="userPhoto" class="user-photo">
           <span id="userName"></span>
@@ -60,7 +32,7 @@
       <!-- Login Prompt -->
       <section id="loginPrompt" class="login-prompt">
         <h3>Please login to access all features</h3>
-        <p>Login to create, save, and share tests with the community.</p>
+        <p>Login with Google to create, save, and share tests with the community.</p>
       </section>
 
       <!-- Leaderboard Section -->

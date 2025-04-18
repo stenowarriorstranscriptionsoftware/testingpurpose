@@ -1,183 +1,17 @@
 // Initialize Firebase
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBjY-pE5jxQJgKqDZrcE7Im66_5r-X_mRA",
   authDomain: "setup-login-page.firebaseapp.com",
-  databaseURL: "https://setup-login-page-default-rtdb.firebaseio.com",
   projectId: "setup-login-page",
-  storageBucket: "setup-login-page.firebasestorage.app",
+  storageBucket: "setup-login-page.appspot.com",
   messagingSenderId: "341251531099",
   appId: "1:341251531099:web:f4263621455541ffdc3a7e",
   measurementId: "G-ZXFC7NR9HV"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.database();
-
-document.addEventListener('DOMContentLoaded', function() {
-  // DOM elements
-  const authModal = document.getElementById('authModal');
-  const loginBtn = document.getElementById('loginBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const userInfo = document.getElementById('userInfo');
-  const userPhoto = document.getElementById('userPhoto');
-  const userName = document.getElementById('userName');
-  const closeAuthModal = document.getElementById('closeAuthModal');
-  const loginEmailBtn = document.getElementById('loginEmailBtn');
-  const registerBtn = document.getElementById('registerBtn');
-  const googleLoginBtn = document.getElementById('googleLoginBtn');
-  const authEmail = document.getElementById('authEmail');
-  const authPassword = document.getElementById('authPassword');
-  const authMessage = document.getElementById('authMessage');
-
-  // Auth state listener
-  auth.onAuthStateChanged(user => {
-    console.log('Auth state changed:', user);
-    if (user) {
-      // User is signed in
-      loginBtn.classList.add('hidden');
-      userInfo.classList.remove('hidden');
-      
-      // Update user info
-      userName.textContent = user.displayName || user.email.split('@')[0];
-      userPhoto.src = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
-      
-      // Close auth modal if open
-      authModal.classList.add('hidden');
-      clearAuthForm();
-    } else {
-      // User is signed out
-      loginBtn.classList.remove('hidden');
-      userInfo.classList.add('hidden');
-    }
-  });
-
-  // Login button click handler
-  loginBtn.addEventListener('click', () => {
-    authModal.classList.remove('hidden');
-  });
-
-  // Close modal handler
-  closeAuthModal.addEventListener('click', () => {
-    authModal.classList.add('hidden');
-    clearAuthForm();
-  });
-
-  // Email/password login handler
-  loginEmailBtn.addEventListener('click', () => {
-    const email = authEmail.value.trim();
-    const password = authPassword.value.trim();
-    
-    if (!validateEmail(email) || !validatePassword(password)) {
-      return;
-    }
-    
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        showAuthMessage('Login successful!', 'success');
-        setTimeout(() => authModal.classList.add('hidden'), 1000);
-      })
-      .catch(error => {
-        showAuthMessage(getAuthErrorMessage(error), 'error');
-      });
-  });
-
-  // Registration handler
-  registerBtn.addEventListener('click', () => {
-    const email = authEmail.value.trim();
-    const password = authPassword.value.trim();
-    
-    if (!validateEmail(email) || !validatePassword(password)) {
-      return;
-    }
-    
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        showAuthMessage('Registration successful!', 'success');
-        setTimeout(() => authModal.classList.add('hidden'), 1000);
-      })
-      .catch(error => {
-        showAuthMessage(getAuthErrorMessage(error), 'error');
-      });
-  });
-
-  // Google login handler
-  googleLoginBtn.addEventListener('click', () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-      .then(() => {
-        showAuthMessage('Login successful!', 'success');
-        setTimeout(() => authModal.classList.add('hidden'), 1000);
-      })
-      .catch(error => {
-        showAuthMessage(getAuthErrorMessage(error), 'error');
-      });
-  });
-
-  // Logout handler
-  logoutBtn.addEventListener('click', () => {
-    auth.signOut()
-      .catch(error => {
-        console.error('Logout error:', error);
-      });
-  });
-
-  // Helper functions
-  function showAuthMessage(message, type) {
-    authMessage.textContent = message;
-    authMessage.className = type;
-    setTimeout(() => {
-      authMessage.textContent = '';
-      authMessage.className = '';
-    }, 3000);
-  }
-
-  function clearAuthForm() {
-    authEmail.value = '';
-    authPassword.value = '';
-    authMessage.textContent = '';
-    authMessage.className = '';
-  }
-
-  function validateEmail(email) {
-    if (!email) {
-      showAuthMessage('Please enter your email', 'error');
-      return false;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showAuthMessage('Please enter a valid email', 'error');
-      return false;
-    }
-    return true;
-  }
-
-  function validatePassword(password) {
-    if (!password) {
-      showAuthMessage('Please enter your password', 'error');
-      return false;
-    }
-    if (password.length < 6) {
-      showAuthMessage('Password must be at least 6 characters', 'error');
-      return false;
-    }
-    return true;
-  }
-
-  function getAuthErrorMessage(error) {
-    switch (error.code) {
-      case 'auth/invalid-email': return 'Invalid email address';
-      case 'auth/user-disabled': return 'Account disabled';
-      case 'auth/user-not-found': return 'No account found with this email';
-      case 'auth/wrong-password': return 'Incorrect password';
-      case 'auth/email-already-in-use': return 'Email already in use';
-      case 'auth/weak-password': return 'Password is too weak';
-      case 'auth/operation-not-allowed': return 'Email/password accounts are not enabled';
-      default: return 'Login failed. Please try again.';
-    }
-  }
-
 
 // Initialize jsPDF
 const { jsPDF } = window.jspdf;
@@ -218,19 +52,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const prevPageBtn = document.getElementById('prevPageBtn');
   const nextPageBtn = document.getElementById('nextPageBtn');
   const leaderboardPagination = document.getElementById('leaderboardPagination');
+
+  // Custom Test Logic
   const saveBtn = document.getElementById('saveTestBtn');
   const clearBtn = document.getElementById('clearTestsBtn');
   const customTitle = document.getElementById('customTitle');
   const customOriginal = document.getElementById('customOriginal');
-
-  // Auth elements
-  const authModal = document.getElementById('authModal');
-  const loginEmailBtn = document.getElementById('loginEmailBtn');
-  const registerBtn = document.getElementById('registerBtn');
-  const googleLoginBtn = document.getElementById('googleLoginBtn');
-  const closeAuthModal = document.getElementById('closeAuthModal');
-  const authEmail = document.getElementById('authEmail');
-  const authPassword = document.getElementById('authPassword');
 
   // Timer variables
   let timerInterval;
@@ -259,24 +86,15 @@ document.addEventListener('DOMContentLoaded', function() {
       // User is signed in
       loginBtn.classList.add('hidden');
       userInfo.classList.remove('hidden');
-      
-      // Use email if no display name is set
-      const displayName = user.displayName || user.email.split('@')[0];
-      userName.textContent = displayName;
-      
-      // Use a default avatar if no photo URL
-      userPhoto.src = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
-      
+      userPhoto.src = user.photoURL;
+      userName.textContent = user.displayName;
       loginPrompt.classList.add('hidden');
       customTestSection.classList.remove('hidden');
       globalTestsSection.classList.remove('hidden');
       leaderboardSection.classList.remove('hidden');
       loadGlobalTests();
       loadLeaderboard();
-      cleanupOldData();
-      
-      // Close auth modal if open
-      authModal.classList.add('hidden');
+      cleanupOldData(); // Run cleanup when user logs in
     } else {
       // User is signed out
       loginBtn.classList.remove('hidden');
@@ -290,122 +108,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Login handler
   loginBtn.addEventListener('click', () => {
-    authModal.classList.remove('hidden');
-  });
-
-  // Close modal handler
-  closeAuthModal.addEventListener('click', () => {
-    authModal.classList.add('hidden');
-  });
-
-  // Email/password login handler
-  loginEmailBtn.addEventListener('click', () => {
-    const email = authEmail.value;
-    const password = authPassword.value;
-    
-    if (!email || !password) {
-      showAuthMessage('Please enter both email and password', 'error');
-      return;
-    }
-    
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        showAuthMessage('Login successful!', 'success');
-        setTimeout(() => authModal.classList.add('hidden'), 1000);
-      })
-      .catch(error => {
-        showAuthMessage(getAuthErrorMessage(error), 'error');
-      });
-  });
-
-  // Registration handler
-  registerBtn.addEventListener('click', () => {
-    const email = authEmail.value;
-    const password = authPassword.value;
-    
-    if (!email || !password) {
-      showAuthMessage('Please enter both email and password', 'error');
-      return;
-    }
-    
-    if (password.length < 6) {
-      showAuthMessage('Password should be at least 6 characters', 'error');
-      return;
-    }
-    
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        showAuthMessage('Registration successful!', 'success');
-        setTimeout(() => authModal.classList.add('hidden'), 1000);
-      })
-      .catch(error => {
-        showAuthMessage(getAuthErrorMessage(error), 'error');
-      });
-  });
-
-  // Google login handler
-  googleLoginBtn.addEventListener('click', () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
-      .then(() => {
-        showAuthMessage('Login successful!', 'success');
-        setTimeout(() => authModal.classList.add('hidden'), 1000);
-      })
       .catch(error => {
-        showAuthMessage(getAuthErrorMessage(error), 'error');
+        console.error('Login error:', error);
+        alert('Login failed. Please try again.');
       });
   });
 
   // Logout handler
   logoutBtn.addEventListener('click', () => {
-    auth.signOut()
-      .then(() => {
-        // Clear any auth messages
-        const existingMessage = document.querySelector('.auth-message');
-        if (existingMessage) {
-          existingMessage.remove();
-        }
-      })
-      .catch(error => {
-        console.error('Logout error:', error);
-      });
+    auth.signOut();
   });
-
-  // Helper function to show auth messages
-  function showAuthMessage(message, type) {
-    // Remove any existing messages
-    const existingMessage = document.querySelector('.auth-message');
-    if (existingMessage) {
-      existingMessage.remove();
-    }
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `auth-message ${type}-message`;
-    messageDiv.textContent = message;
-    document.getElementById('authForm').appendChild(messageDiv);
-  }
-
-  // Helper function to get user-friendly error messages
-  function getAuthErrorMessage(error) {
-    switch (error.code) {
-      case 'auth/invalid-email':
-        return 'Invalid email address';
-      case 'auth/user-disabled':
-        return 'Account disabled';
-      case 'auth/user-not-found':
-        return 'No account found with this email';
-      case 'auth/wrong-password':
-        return 'Incorrect password';
-      case 'auth/email-already-in-use':
-        return 'Email already in use';
-      case 'auth/weak-password':
-        return 'Password is too weak';
-      case 'auth/operation-not-allowed':
-        return 'Email/password accounts are not enabled';
-      default:
-        return 'Authentication error. Please try again.';
-    }
-  }
 
   // Leaderboard filter change handler
   leaderboardFilter.addEventListener('change', () => {
@@ -763,8 +477,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const user = auth.currentUser;
     if (user) {
       const attemptData = {
-        userName: user.displayName || user.email.split('@')[0],
-        userPhoto: user.photoURL || 'https://www.gravatar.com/avatar/?d=mp',
+        userName: user.displayName,
+        userPhoto: user.photoURL,
         testTitle: testTitle,  // Use the determined test title
         stats: comparison.stats,
         timestamp: Date.now()
@@ -1300,8 +1014,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const testData = {
       title,
       text,
-      userName: user.displayName || user.email.split('@')[0],
-      userPhoto: user.photoURL || 'https://www.gravatar.com/avatar/?d=mp',
+      userName: user.displayName,
+      userPhoto: user.photoURL,
       timestamp: firebase.database.ServerValue.TIMESTAMP
     };
 
@@ -1323,7 +1037,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const user = auth.currentUser;
     if (!user) return;
 
-    database.ref('tests').orderByChild('userName').equalTo(user.displayName || user.email.split('@')[0]).once('value')
+    database.ref('tests').orderByChild('userName').equalTo(user.displayName).once('value')
       .then(snapshot => {
         const userTests = snapshot.val();
         if (!userTests || Object.keys(userTests).length === 0) {
