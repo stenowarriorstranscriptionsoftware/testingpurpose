@@ -30,45 +30,44 @@
 
     <main>
       <!-- Login Prompt -->
-      <!-- Replace the loginPrompt section in your index.html -->
-<section id="loginPrompt" class="login-prompt">
-  <div id="loginForm">
-    <h3>Login to Steno Warriors</h3>
-    <div class="input-group">
-      <label for="loginEmail">Email</label>
-      <input type="email" id="loginEmail" placeholder="Enter your email">
-    </div>
-    <div class="input-group">
-      <label for="loginPassword">Password</label>
-      <input type="password" id="loginPassword" placeholder="Enter your password">
-    </div>
-    <button id="emailLoginBtn" class="auth-btn">Login</button>
-    <button id="googleLoginBtn" class="auth-btn secondary-btn">Login with Google</button>
-    <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
-  </div>
+      <section id="loginPrompt" class="login-prompt">
+        <div id="loginForm">
+          <h3>Login to Steno Warriors</h3>
+          <div class="input-group">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" placeholder="Enter your email">
+          </div>
+          <div class="input-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password">
+          </div>
+          <button id="emailLoginBtn" class="auth-btn">Login</button>
+          <button id="googleLoginBtn" class="auth-btn secondary-btn">Login with Google</button>
+          <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
+        </div>
 
-  <div id="registerForm" class="hidden">
-    <h3>Create an Account</h3>
-    <div class="input-group">
-      <label for="registerName">Full Name</label>
-      <input type="text" id="registerName" placeholder="Enter your full name">
-    </div>
-    <div class="input-group">
-      <label for="registerEmail">Email</label>
-      <input type="email" id="registerEmail" placeholder="Enter your email">
-    </div>
-    <div class="input-group">
-      <label for="registerPassword">Password</label>
-      <input type="password" id="registerPassword" placeholder="Create a password">
-    </div>
-    <div class="input-group">
-      <label for="confirmPassword">Confirm Password</label>
-      <input type="password" id="confirmPassword" placeholder="Confirm your password">
-    </div>
-    <button id="registerBtn" class="auth-btn">Register</button>
-    <button id="showLogin" class="auth-btn secondary-btn">Back to Login</button>
-  </div>
-</section>
+        <div id="registerForm" class="hidden">
+          <h3>Create an Account</h3>
+          <div class="input-group">
+            <label for="registerName">Full Name</label>
+            <input type="text" id="registerName" placeholder="Enter your full name">
+          </div>
+          <div class="input-group">
+            <label for="registerEmail">Email</label>
+            <input type="email" id="registerEmail" placeholder="Enter your email">
+          </div>
+          <div class="input-group">
+            <label for="registerPassword">Password</label>
+            <input type="password" id="registerPassword" placeholder="Create a password (min 6 characters)">
+          </div>
+          <div class="input-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm your password">
+          </div>
+          <button id="registerBtn" class="auth-btn">Register</button>
+          <button id="showLogin" class="auth-btn secondary-btn">Back to Login</button>
+        </div>
+      </section>
 
       <!-- Leaderboard Section -->
       <section id="leaderboardSection" class="hidden leaderboard-section">
