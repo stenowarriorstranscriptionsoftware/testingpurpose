@@ -1,19 +1,181 @@
 // Initialize Firebase
 const firebaseConfig = {
-const firebaseConfig = {
   apiKey: "AIzaSyBjY-pE5jxQJgKqDZrcE7Im66_5r-X_mRA",
   authDomain: "setup-login-page.firebaseapp.com",
-  databaseURL: "https://setup-login-page-default-rtdb.firebaseio.com",
   projectId: "setup-login-page",
-  storageBucket: "setup-login-page.firebasestorage.app",
+  storageBucket: "setup-login-page.appspot.com",
   messagingSenderId: "341251531099",
   appId: "1:341251531099:web:f4263621455541ffdc3a7e",
   measurementId: "G-ZXFC7NR9HV"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.database();
+
+document.addEventListener('DOMContentLoaded', function() {
+  // DOM elements
+  const authModal = document.getElementById('authModal');
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const userInfo = document.getElementById('userInfo');
+  const userPhoto = document.getElementById('userPhoto');
+  const userName = document.getElementById('userName');
+  const closeAuthModal = document.getElementById('closeAuthModal');
+  const loginEmailBtn = document.getElementById('loginEmailBtn');
+  const registerBtn = document.getElementById('registerBtn');
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const authEmail = document.getElementById('authEmail');
+  const authPassword = document.getElementById('authPassword');
+  const authMessage = document.getElementById('authMessage');
+
+  // Auth state listener
+  auth.onAuthStateChanged(user => {
+    console.log('Auth state changed:', user);
+    if (user) {
+      // User is signed in
+      loginBtn.classList.add('hidden');
+      userInfo.classList.remove('hidden');
+      
+      // Update user info
+      userName.textContent = user.displayName || user.email.split('@')[0];
+      userPhoto.src = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
+      
+      // Close auth modal if open
+      authModal.classList.add('hidden');
+      clearAuthForm();
+    } else {
+      // User is signed out
+      loginBtn.classList.remove('hidden');
+      userInfo.classList.add('hidden');
+    }
+  });
+
+  // Login button click handler
+  loginBtn.addEventListener('click', () => {
+    authModal.classList.remove('hidden');
+  });
+
+  // Close modal handler
+  closeAuthModal.addEventListener('click', () => {
+    authModal.classList.add('hidden');
+    clearAuthForm();
+  });
+
+  // Email/password login handler
+  loginEmailBtn.addEventListener('click', () => {
+    const email = authEmail.value.trim();
+    const password = authPassword.value.trim();
+    
+    if (!validateEmail(email) || !validatePassword(password)) {
+      return;
+    }
+    
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        showAuthMessage('Login successful!', 'success');
+        setTimeout(() => authModal.classList.add('hidden'), 1000);
+      })
+      .catch(error => {
+        showAuthMessage(getAuthErrorMessage(error), 'error');
+      });
+  });
+
+  // Registration handler
+  registerBtn.addEventListener('click', () => {
+    const email = authEmail.value.trim();
+    const password = authPassword.value.trim();
+    
+    if (!validateEmail(email) || !validatePassword(password)) {
+      return;
+    }
+    
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        showAuthMessage('Registration successful!', 'success');
+        setTimeout(() => authModal.classList.add('hidden'), 1000);
+      })
+      .catch(error => {
+        showAuthMessage(getAuthErrorMessage(error), 'error');
+      });
+  });
+
+  // Google login handler
+  googleLoginBtn.addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+      .then(() => {
+        showAuthMessage('Login successful!', 'success');
+        setTimeout(() => authModal.classList.add('hidden'), 1000);
+      })
+      .catch(error => {
+        showAuthMessage(getAuthErrorMessage(error), 'error');
+      });
+  });
+
+  // Logout handler
+  logoutBtn.addEventListener('click', () => {
+    auth.signOut()
+      .catch(error => {
+        console.error('Logout error:', error);
+      });
+  });
+
+  // Helper functions
+  function showAuthMessage(message, type) {
+    authMessage.textContent = message;
+    authMessage.className = type;
+    setTimeout(() => {
+      authMessage.textContent = '';
+      authMessage.className = '';
+    }, 3000);
+  }
+
+  function clearAuthForm() {
+    authEmail.value = '';
+    authPassword.value = '';
+    authMessage.textContent = '';
+    authMessage.className = '';
+  }
+
+  function validateEmail(email) {
+    if (!email) {
+      showAuthMessage('Please enter your email', 'error');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showAuthMessage('Please enter a valid email', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  function validatePassword(password) {
+    if (!password) {
+      showAuthMessage('Please enter your password', 'error');
+      return false;
+    }
+    if (password.length < 6) {
+      showAuthMessage('Password must be at least 6 characters', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  function getAuthErrorMessage(error) {
+    switch (error.code) {
+      case 'auth/invalid-email': return 'Invalid email address';
+      case 'auth/user-disabled': return 'Account disabled';
+      case 'auth/user-not-found': return 'No account found with this email';
+      case 'auth/wrong-password': return 'Incorrect password';
+      case 'auth/email-already-in-use': return 'Email already in use';
+      case 'auth/weak-password': return 'Password is too weak';
+      case 'auth/operation-not-allowed': return 'Email/password accounts are not enabled';
+      default: return 'Login failed. Please try again.';
+    }
+  }
+
 
 // Initialize jsPDF
 const { jsPDF } = window.jspdf;
