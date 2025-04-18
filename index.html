@@ -29,114 +29,27 @@
           Sign in with Google
         </button>
         <div class="email-login-form" style="margin-top: 20px;">
-          <input type="email" id="login-email" placeholder="Email" class="login-input">
-          <input type="password" id="login-password" placeholder="Password" class="login-input">
+          <input type="email" id="login-email" placeholder="Email" class="login-input" required>
+          <div class="password-container">
+            <input type="password" id="login-password" placeholder="Password" class="login-input" minlength="6" required>
+            <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+          </div>
+          <input type="password" id="confirm-password" placeholder="Confirm Password" class="login-input" minlength="6" style="margin-top: 8px; display: none;">
+          <div id="error-message" class="error-message"></div>
+          <div id="password-strength" style="margin: 5px 0; height: 4px; background: #eee; border-radius: 2px; display: none;">
+            <div id="strength-bar" style="height: 100%; width: 0%; border-radius: 2px; transition: width 0.3s;"></div>
+          </div>
           <button id="emailSignIn" class="sign-in-btn">Sign In</button>
           <p style="margin-top: 10px; text-align: center;">or</p>
           <button id="createAccount" class="create-account-btn">Create Account</button>
+          <button id="toggleSignUp" class="create-account-btn" style="margin-top: 10px; display: none;">Back to Sign In</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="header">
-    <h1>Steno Warriors Transcription Software</h1>
-    <div id="user-info" style="display: none;">
-      <img id="user-photo" width="40" height="40" style="border-radius: 50%; vertical-align: middle;">
-      <span id="user-name" style="margin: 0 10px;"></span>
-      <button id="signOut" class="sign-out-btn">Sign Out</button>
-    </div>
-  </div>
-
-  <div class="main" id="app-content" style="display: none;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2>Please select a Test</h2>
-      <button id="showLeaderboard" class="download-btn">Show Leaderboard</button>
-    </div>
-    
-    <div class="select-panel">
-      <select id="volume-select">
-        <option value="1">Test 1-50 (General Matter)</option>
-        <option value="2">Test 51-100 (KC Mix Transcription)</option>
-      </select>
-
-      <select id="test-select">
-      </select>
-    
-      <select id="speed-select">
-        <option value="80">80 WPM</option>
-        <option value="100">100 WPM</option>
-      </select>
-    </div>
-    <div id="video-container"></div>
-
-    <div class="timer-container">
-      Typing timer: <span id="timer">50:00</span>
-      <div class="timer-controls">
-        <label><input type="radio" name="duration" value="2400"> 40 min</label>
-        <label><input type="radio" name="duration" value="3000" checked> 50 min</label>
-        <button id="startPause" class="tmrBtn">Start</button>
-        <button id="reset" class="tmrBtn">Reset</button>
-      </div>
-    </div>
-    
-    <div id="paragraphA"></div>
-    <textarea class="inputBox" id="paragraphB" spellcheck="false" placeholder="Click Start to begin typing" disabled></textarea>
-    <div class="resultText" id="textBoxC" style="display: none;"></div>
-    <button onclick="downloadPDF()" class="download-btn">Show Result</button>
-  </div>
-
-  <!-- Leaderboard Modal -->
-  <div id="leaderboard-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <span class="close-modal">&times;</span>
-      <h2>Leaderboard</h2>
-      <div class="leaderboard-filters">
-        <select id="leaderboard-test-select">
-          <option value="all">All Tests</option>
-        </select>
-        <select id="leaderboard-speed-select">
-          <option value="all">All Speeds</option>
-          <option value="80">80 WPM</option>
-          <option value="100">100 WPM</option>
-        </select>
-        <button id="refresh-leaderboard" class="download-btn">Refresh</button>
-      </div>
-      <div id="leaderboard-content">
-        <table id="leaderboard-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Name</th>
-              <th>Test</th>
-              <th>Speed</th>
-              <th>Accuracy</th>
-              <th>Words</th>
-              <th>Typed</th>
-              <th>Time</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="leaderboard-pagination">
-        <button id="prev-page" disabled>Previous</button>
-        <span id="page-info">Page 1 of 1</span>
-        <button id="next-page" disabled>Next</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <div>
-      Made with <span style="color: red;">&hearts;</span> &middot; Anish &middot; <a href=""> Contact </a>
-    </div>
-  </div>
-
-  <!-- JS Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Rest of your existing HTML remains the same -->
+  <!-- ... (header, main content, footer, etc.) ... -->
 
   <script>
     // Firebase Configuration
@@ -150,11 +63,80 @@
       appId: "1:720795371551:web:78ff7863cbeaca0161ed2a",
       measurementId: "G-L6MHY1KCZ0"
     };
-    
+
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
+
+    // DOM Elements
+    const createAccountBtn = document.getElementById('createAccount');
+    const toggleSignUpBtn = document.getElementById('toggleSignUp');
+    const confirmPasswordField = document.getElementById('confirm-password');
+    const passwordStrength = document.getElementById('password-strength');
+    const strengthBar = document.getElementById('strength-bar');
+
+    // Toggle between sign in and sign up
+    createAccountBtn.addEventListener('click', () => {
+      document.getElementById('emailSignIn').style.display = 'none';
+      createAccountBtn.style.display = 'none';
+      confirmPasswordField.style.display = 'block';
+      passwordStrength.style.display = 'block';
+      toggleSignUpBtn.style.display = 'block';
+      document.querySelector('.email-login-form p').style.display = 'none';
+    });
+
+    toggleSignUpBtn.addEventListener('click', () => {
+      document.getElementById('emailSignIn').style.display = 'block';
+      createAccountBtn.style.display = 'block';
+      confirmPasswordField.style.display = 'none';
+      passwordStrength.style.display = 'none';
+      toggleSignUpBtn.style.display = 'none';
+      document.querySelector('.email-login-form p').style.display = 'block';
+      showError('');
+    });
+
+    // Password strength indicator
+    document.getElementById('login-password').addEventListener('input', function(e) {
+      const password = e.target.value;
+      const strength = calculatePasswordStrength(password);
+      updateStrengthBar(strength);
+    });
+
+    function calculatePasswordStrength(password) {
+      let strength = 0;
+      if (password.length > 7) strength += 1;
+      if (password.match(/[a-z]/)) strength += 1;
+      if (password.match(/[A-Z]/)) strength += 1;
+      if (password.match(/[0-9]/)) strength += 1;
+      if (password.match(/[^a-zA-Z0-9]/)) strength += 1;
+      return strength;
+    }
+
+    function updateStrengthBar(strength) {
+      const colors = ['#ff0000', '#ff5a00', '#ff9a00', '#ffcc00', '#a0ff00', '#00ff00'];
+      const percent = (strength / 5) * 100;
+      strengthBar.style.width = `${percent}%`;
+      strengthBar.style.background = colors[strength] || colors[0];
+    }
+
+    function togglePasswordVisibility() {
+      const passwordField = document.getElementById('login-password');
+      const confirmField = document.getElementById('confirm-password');
+      const type = passwordField.type === 'password' ? 'text' : 'password';
+      passwordField.type = type;
+      confirmField.type = type;
+    }
+
+    function showError(message) {
+      const errorElement = document.getElementById('error-message');
+      errorElement.textContent = message;
+      setTimeout(() => {
+        if (errorElement.textContent === message) {
+          errorElement.textContent = '';
+        }
+      }, 5000);
+    }
 
     // Authentication Functions
     function signInWithGoogle() {
@@ -173,7 +155,7 @@
           })
           .catch((error) => {
             console.error("Error signing in:", error);
-            alert("Error signing in: " + error.message);
+            showError("Error signing in with Google");
           });
       } else {
         // Desktop still uses popup
@@ -183,37 +165,101 @@
           })
           .catch((error) => {
             console.error("Error signing in:", error);
-            alert("Error signing in: " + error.message);
+            showError("Error signing in with Google");
           });
       }
     }
 
     function signInWithEmail() {
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value.trim();
       
+      showError('');
+      
+      if (!validateEmail(email)) {
+        showError('Please enter a valid email address');
+        return;
+      }
+
       auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
           console.log("User signed in:", userCredential.user);
         })
         .catch((error) => {
-          console.error("Error signing in:", error);
-          alert("Error signing in: " + error.message);
+          let errorMessage;
+          switch(error.code) {
+            case 'auth/invalid-email':
+              errorMessage = 'Invalid email address';
+              break;
+            case 'auth/user-disabled':
+              errorMessage = 'Account disabled';
+              break;
+            case 'auth/user-not-found':
+              errorMessage = 'Account not found';
+              break;
+            case 'auth/wrong-password':
+              errorMessage = 'Incorrect password';
+              break;
+            default:
+              errorMessage = 'Error signing in. Please try again.';
+          }
+          showError(errorMessage);
         });
     }
 
     function createAccount() {
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      const confirmPassword = document.getElementById('confirm-password').value.trim();
       
+      showError('');
+      
+      if (!validateEmail(email)) {
+        showError('Please enter a valid email address');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        return;
+      }
+
       auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
-          console.log("User created:", userCredential.user);
+          console.log("Account created successfully!");
+          // Switch back to sign in view
+          toggleSignUpBtn.click();
         })
         .catch((error) => {
-          console.error("Error creating account:", error);
-          alert("Error creating account: " + error.message);
+          let errorMessage;
+          switch(error.code) {
+            case 'auth/invalid-email':
+              errorMessage = 'Invalid email address';
+              break;
+            case 'auth/weak-password':
+              errorMessage = 'Password should be at least 6 characters';
+              break;
+            case 'auth/email-already-in-use':
+              errorMessage = 'Email already in use';
+              break;
+            case 'auth/operation-not-allowed':
+              errorMessage = 'Account creation not allowed';
+              break;
+            default:
+              errorMessage = 'Error creating account. Please try again.';
+          }
+          showError(errorMessage);
         });
+    }
+
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
     }
 
     function signOut() {
@@ -223,413 +269,12 @@
         })
         .catch((error) => {
           console.error("Error signing out:", error);
+          showError("Error signing out");
         });
     }
 
-    // Auth State Listener
-    auth.onAuthStateChanged((user) => {
-      const loginContainer = document.getElementById('login-container');
-      const appContent = document.getElementById('app-content');
-      const userInfo = document.getElementById('user-info');
-
-      if (user) {
-        loginContainer.style.display = 'none';
-        appContent.style.display = 'block';
-        userInfo.style.display = 'block';
-        document.getElementById('user-photo').src = user.photoURL || 'https://via.placeholder.com/40';
-        document.getElementById('user-name').textContent = user.displayName || user.email;
-        populateLeaderboardTestSelect();
-        
-        // Handle redirect on mobile
-        if (window.innerWidth <= 768) {
-          window.scrollTo(0, 0);
-        }
-      } else {
-        loginContainer.style.display = 'flex';
-        appContent.style.display = 'none';
-        userInfo.style.display = 'none';
-      }
-    });
-
-    // Leaderboard Variables
-    let currentPage = 1;
-    const itemsPerPage = 10;
-    let currentLeaderboardData = [];
-    let currentTestFilter = 'all';
-    let currentSpeedFilter = 'all';
-
-    // DOM Elements
-    const leaderboardModal = document.getElementById('leaderboard-modal');
-    const showLeaderboardBtn = document.getElementById('showLeaderboard');
-    const closeModalBtn = document.querySelector('.close-modal');
-    const leaderboardTestSelect = document.getElementById('leaderboard-test-select');
-    const leaderboardSpeedSelect = document.getElementById('leaderboard-speed-select');
-    const refreshLeaderboardBtn = document.getElementById('refresh-leaderboard');
-    const prevPageBtn = document.getElementById('prev-page');
-    const nextPageBtn = document.getElementById('next-page');
-    const pageInfoSpan = document.getElementById('page-info');
-    const leaderboardTableBody = document.querySelector('#leaderboard-table tbody');
-
-    // Leaderboard Functions
-    function populateLeaderboardTestSelect() {
-      leaderboardTestSelect.innerHTML = '<option value="all">All Tests</option>';
-      
-      // Add tests 1-50
-      for (let i = 1; i <= 50; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.text = `Test ${i}`;
-        leaderboardTestSelect.appendChild(option);
-      }
-      
-      // Add tests 51-100
-      for (let i = 51; i <= 100; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.text = `Test ${i}`;
-        leaderboardTestSelect.appendChild(option);
-      }
-    }
-
-    function loadLeaderboard() {
-      const threeMonthsAgo = new Date();
-      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-      
-      leaderboardTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Loading leaderboard...</td></tr>';
-      
-      database.ref('leaderboard').orderByChild('timestamp').startAt(threeMonthsAgo.getTime()).once('value')
-        .then((snapshot) => {
-          currentLeaderboardData = [];
-          snapshot.forEach((childSnapshot) => {
-            const result = childSnapshot.val();
-            currentLeaderboardData.push({
-              id: childSnapshot.key,
-              ...result,
-              testNumber: result.testNumber.toString() // Ensure testNumber is string
-            });
-          });
-          
-          // Filter data
-          currentLeaderboardData = currentLeaderboardData.filter(item => {
-            const testMatch = currentTestFilter === 'all' || item.testNumber === currentTestFilter;
-            const speedMatch = currentSpeedFilter === 'all' || item.speed.toString() === currentSpeedFilter;
-            return testMatch && speedMatch;
-          });
-          
-          // Sort by accuracy
-          currentLeaderboardData.sort((a, b) => b.accuracy - a.accuracy);
-          
-          currentPage = 1;
-          renderLeaderboard();
-        })
-        .catch((error) => {
-          console.error("Error loading leaderboard:", error);
-          leaderboardTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: red;">Error loading leaderboard. Please try again.</td></tr>';
-        });
-    }
-
-    function renderLeaderboard() {
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const paginatedData = currentLeaderboardData.slice(startIndex, endIndex);
-      
-      leaderboardTableBody.innerHTML = '';
-      
-      if (paginatedData.length === 0) {
-        leaderboardTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No results found</td></tr>';
-        return;
-      }
-      
-      paginatedData.forEach((item, index) => {
-        const row = document.createElement('tr');
-        const rank = startIndex + index + 1;
-        const minutes = Math.floor(item.timeTaken / 60);
-        const seconds = item.timeTaken % 60;
-        const timeTakenStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        const dateStr = new Date(item.timestamp).toLocaleDateString();
-        
-        row.innerHTML = `
-          <td>${rank}</td>
-          <td>${item.userName}</td>
-          <td>Test ${item.testNumber}</td>
-          <td>${item.speed} WPM</td>
-          <td>${item.accuracy.toFixed(2)}%</td>
-          <td>${item.totalWords}</td>
-          <td>${item.typedWords}</td>
-          <td>${timeTakenStr}</td>
-          <td>${dateStr}</td>
-        `;
-        leaderboardTableBody.appendChild(row);
-      });
-      
-      const totalPages = Math.ceil(currentLeaderboardData.length / itemsPerPage);
-      pageInfoSpan.textContent = `Page ${currentPage} of ${totalPages}`;
-      prevPageBtn.disabled = currentPage === 1;
-      nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
-    }
-
-    // Event Listeners
-    showLeaderboardBtn.addEventListener('click', () => {
-      leaderboardModal.style.display = 'block';
-      loadLeaderboard();
-    });
-
-    closeModalBtn.addEventListener('click', () => {
-      leaderboardModal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (event) => {
-      if (event.target === leaderboardModal) {
-        leaderboardModal.style.display = 'none';
-      }
-    });
-
-    leaderboardTestSelect.addEventListener('change', (e) => {
-      currentTestFilter = e.target.value;
-      currentPage = 1;
-      loadLeaderboard();
-    });
-
-    leaderboardSpeedSelect.addEventListener('change', (e) => {
-      currentSpeedFilter = e.target.value;
-      currentPage = 1;
-      loadLeaderboard();
-    });
-
-    refreshLeaderboardBtn.addEventListener('click', loadLeaderboard);
-    prevPageBtn.addEventListener('click', () => {
-      if (currentPage > 1) {
-        currentPage--;
-        renderLeaderboard();
-      }
-    });
-
-    nextPageBtn.addEventListener('click', () => {
-      const totalPages = Math.ceil(currentLeaderboardData.length / itemsPerPage);
-      if (currentPage < totalPages) {
-        currentPage++;
-        renderLeaderboard();
-      }
-    });
-
-    // Timer Functionality
-    let timerDisplay = document.getElementById('timer');
-    let startPauseButton = document.getElementById('startPause');
-    let resetButton = document.getElementById('reset');
-    let paragraphB = document.getElementById('paragraphB');
-    let timerInterval;
-    let timeLeft = 3000;
-    let isTimerRunning = false;
-    let startTimeStamp;
-    let pausedTime = 0;
-    let selectedDuration = 3000;
-
-    function formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
-
-    function updateTimerDisplay() {
-        timerDisplay.textContent = formatTime(timeLeft);
-    }
-
-    function startTimer() {
-        if (!isTimerRunning) {
-            isTimerRunning = true;
-            startPauseButton.textContent = 'Pause';
-            paragraphB.disabled = false;
-            paragraphB.placeholder = "Start typing here...";
-            paragraphB.focus();
-            
-            startTimeStamp = Date.now() - pausedTime * 1000;
-            pausedTime = 0;
-            
-            timerInterval = setInterval(() => {
-                const elapsedSeconds = Math.floor((Date.now() - startTimeStamp) / 1000);
-                timeLeft = Math.max(0, selectedDuration - elapsedSeconds);
-                
-                updateTimerDisplay();
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    isTimerRunning = false;
-                    startPauseButton.textContent = 'Start';
-                    paragraphB.disabled = true;
-                    compareParagraphs();
-                }
-            }, 200);
-        }
-    }
-
-    function pauseTimer() {
-        if (isTimerRunning) {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-            startPauseButton.textContent = 'Start';
-            paragraphB.disabled = true;
-            paragraphB.placeholder = "Timer paused - click Start to continue";
-            
-            const elapsedSeconds = Math.floor((Date.now() - startTimeStamp) / 1000);
-            pausedTime = selectedDuration - (timeLeft - elapsedSeconds);
-        }
-    }
-
-    function resetTimer() {
-        clearInterval(timerInterval);
-        isTimerRunning = false;
-        startPauseButton.textContent = 'Start';
-        paragraphB.disabled = true;
-        paragraphB.value = '';
-        paragraphB.placeholder = "Click Start to begin typing";
-        timeLeft = selectedDuration;
-        pausedTime = 0;
-        updateTimerDisplay();
-    }
-
-    startPauseButton.addEventListener('click', () => {
-        if (isTimerRunning) pauseTimer();
-        else startTimer();
-    });
-
-    resetButton.addEventListener('click', resetTimer);
-
-    document.querySelectorAll('input[name="duration"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (!isTimerRunning) {
-                selectedDuration = parseInt(this.value);
-                timeLeft = selectedDuration;
-                updateTimerDisplay();
-            }
-        });
-    });
-
-    // Test Selection
-    const volumeSelect = document.getElementById('volume-select');
-    const testSelect = document.getElementById('test-select');
-    const speedSelect = document.getElementById('speed-select');
-    const videoContainer = document.getElementById('video-container');
-
-    const tests = {
-        1: Array.from({ length: 50 }, (_, i) => `${i + 1}`),
-        2: Array.from({ length: 50 }, (_, i) => `${i + 51}`)
-    };
-
-    function populateTests(volume) {
-        testSelect.innerHTML = '';
-        tests[volume].forEach(test => {
-            const option = document.createElement('option');
-            option.value = test;
-            option.text = "Test " + test;
-            testSelect.appendChild(option);
-        });
-    }
-
-    function updateVideo() {
-        const spd = speedSelect.value;
-        const tst = testSelect.value;
-        const videoUrl = urlLookup[parseInt(tst, 10)][parseInt(spd, 10)];
-        paragraphA.value = textTable[parseInt(tst, 10)];
-        paragraphB.placeholder = "Click Start to begin typing";
-        videoContainer.innerHTML = `<iframe src="${videoUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
-    }
-
-    volumeSelect.addEventListener('change', () => {
-        populateTests(volumeSelect.value);
-        updateVideo();
-    });
-
-    testSelect.addEventListener('change', updateVideo);
-    speedSelect.addEventListener('change', updateVideo);
-
-    // Initialize
-    updateTimerDisplay();
-    populateTests(volumeSelect.value);
-    updateVideo();
-
-    // PDF Generation
-    function downloadPDF() {
-        if (isTimerRunning) pauseTimer();
-        compareParagraphs();
-        
-        const currentDate = new Date();
-        const formattedDate = `${currentDate.getDate()} ${['January','February','March','April','May','June','July','August','September','October','November','December'][currentDate.getMonth()]} ${currentDate.getFullYear()},`;
-        const hours = currentDate.getHours();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const formattedHours = hours % 12 || 12;
-        const minutes = currentDate.getMinutes().toString().padStart(2, '0');
-        const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
-
-        const headerText = document.createElement('div');
-        headerText.innerHTML = `
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h2 style="color: #4361ee;">Steno Warriors Result Sheet</h2>
-                <div style="margin-top: 10px;">
-                    Test Date & Time: ${formattedDate} ${formattedTime}
-                </div>
-            </div>
-        `;
-        headerText.style.textAlign = 'center';
-
-        const textBoxC = document.getElementById('textBoxC');
-        textBoxC.insertBefore(headerText, textBoxC.firstChild);
-        
-        const downloadBtn = document.createElement('button');
-        downloadBtn.textContent = 'Download PDF';
-        downloadBtn.className = 'download-btn';
-        downloadBtn.onclick = generatePDF;
-        
-        const closeBtn = document.createElement('button');
-        closeBtn.textContent = 'Close Results';
-        closeBtn.className = 'download-btn';
-        closeBtn.style.marginLeft = '10px';
-        closeBtn.onclick = () => location.reload();
-        
-        textBoxC.appendChild(downloadBtn);
-        textBoxC.appendChild(closeBtn);
-        textBoxC.style.display = 'block';
-    }
-
-    function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const element = document.getElementById('textBoxC');
-        const buttons = element.querySelectorAll('button');
-        buttons.forEach(btn => btn.style.display = 'none');
-        
-        html2canvas(element, {
-            scale: 2,
-            logging: false,
-            useCORS: true,
-            allowTaint: true
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const imgWidth = 210;
-            const pageHeight = 295;
-            const imgHeight = canvas.height * imgWidth / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
-
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-
-            while (heightLeft >= 0) {
-                position = heightLeft - imgHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-            }
-
-            buttons.forEach(btn => btn.style.display = 'block');
-            pdf.save('StenoWarriors_Result.pdf');
-        });
-    }
-
-    // Event Listeners
-    document.getElementById('googleSignIn').addEventListener('click', signInWithGoogle);
-    document.getElementById('emailSignIn').addEventListener('click', signInWithEmail);
-    document.getElementById('createAccount').addEventListener('click', createAccount);
-    document.getElementById('signOut').addEventListener('click', signOut);
+    // Auth State Listener (keep your existing one)
+    // ... rest of your existing JavaScript ...
   </script>
 </body>
 </html>
